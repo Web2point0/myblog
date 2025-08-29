@@ -1,0 +1,35 @@
+body {
+background-color: white;
+
+}
+
+.listleft {
+          width: 330px;
+          float: left;
+		  position: relative;
+		  background: url(scroll_middle.jpg) repeat-y center top;
+		  text-align: left;
+		  overflow: hidden;
+		  margin-top: 90px;
+		  list-style-type: none;
+ list-style-type: none;
+		  
+}
+p.listleft {
+          display: inline-table;
+		  padding-left: 20px;
+}
+.listleft:before {
+               content: url(scroll_top.jpg);
+}
+.listleft:after {
+               content: url(scroll_bottom.jpg);
+			   position: relative;
+			   bottom: -5px;
+}
+.invisible {
+           width: 850px;
+           margin-left: auto;
+		   margin-right: auto;
+	
+}
