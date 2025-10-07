@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Connect — Connect with new people</title>
+<style>
+  body{background:#0b1220;color:#dbeafe;font-family:sans-serif;text-align:center;padding:18px}
+  video{width:45%;max-width:420px;height:300px;background:black;border-radius:10px;object-fit:cover}
+  button{background:#06b6d4;color:#012;border:none;padding:10px 16px;border-radius:8px;font-weight:700;cursor:pointer}
+  button:disabled{opacity:.6;cursor:not-allowed}
+  .videos{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+</style>
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+</head>
+<body>
+<h2>Howdy Partner! — connect with new people</h2>
+<p id="status">Loading ICE configuration…</p>
+<div class="videos">
+  <video id="myVideo" autoplay muted playsinline></video>
+  <video id="remoteVideo" autoplay playsinline></video>
+</div>
+<button id="nextBtn" disabled>Next Partner</button>
+
+<script>
+const statusEl=document.getElementById("status");
+const nextBtn=document.getElementById("nextBtn");
+const myVideo=document.getElementById("myVideo");
+const remoteVideo=document.getElementById("remoteVideo");
+
+const ROOM_HOST_ID="community-webrtc-roomhost";
+let peer,hostPeer,connToHost,isHost=false,myId,myStream,currentCall,connectedPartner;
+let hostQueue=[];
+
+/* ====== 1. Load ICE configuration from Cloudflare Worker ====== */
+const ICE_WORKER_URL="https://ice-config-worker.clip-devious-turf.workers.dev"; // 🔧 change this
+
+async function loadIceConfig(){
+  try{
+    const res=await fetch(ICE_WORKER_URL);
+    const data=await res.json();
+    console.log("Loaded ICE config:",data);
+    return data.iceServers?data:data; // supports both {iceServers:[…]} or plain
+  }catch(e){
+    console.error("Failed to load ICE config:",e);
+    return {iceServers:[{urls:["stun:stun.l.google.com:19302"]}]};
+  }
+}
+
+/* ====== 2. Initialize after config ====== */
+(async()=>{
+  const ICE_CONFIG=await loadIceConfig();
+  initPeer(ICE_CONFIG);
+})();
+
+function setStatus(msg){statusEl.textContent=msg;}
+
+/* ====== 3. PeerJS setup ====== */
+function initPeer(ICE_CONFIG){
+  peer=new Peer({host:"0.peerjs.com",port:443,secure:true,config:ICE_CONFIG});
+  peer.on("open",id=>{
+    myId=id;
+    setStatus("Connected as "+id);
+    attemptHost();
+  });
+  peer.on("call",async call=>{
+    await startStream();
+    call.answer(myStream);
+    bindCall(call);
+  });
+  peer.on("connection",conn=>{
+    conn.on("data",msg=>{
+      if(msg.type==="disconnect") handleDisconnect();
+    });
+  });
+}
+
+/* ====== 4. Host / client logic ====== */
+function attemptHost(){
+  hostPeer=new Peer(ROOM_HOST_ID,{host:"0.peerjs.com",port:443,secure:true});
+  hostPeer.on("open",()=>{
+    isHost=true;
+    setStatus("You are the host. Waiting for visitors…");
+    setupHost();
+    // host joins queue through its own client
+    connectToHost();
+  });
+  hostPeer.on("error",()=>connectToHost());
+}
+
+function setupHost(){
+  hostPeer.on("connection",conn=>{
+    conn.on("data",msg=>{
+      if(msg.type==="joinQueue"){
+        if(!hostQueue.find(c=>c.peer===conn.peer))hostQueue.push(conn);
+        maybePair();
+      }
+    });
+    conn.on("close",()=>hostQueue=hostQueue.filter(c=>c.peer!==conn.peer));
+  });
+}
+
+function maybePair(){
+  while(hostQueue.length>=2){
+    const a=hostQueue.shift(),b=hostQueue.shift();
+    try{a.send({type:"partner",id:b.peer});}catch(e){}
+    try{b.send({type:"partner",id:a.peer});}catch(e){}
+    console.log("Paired",a.peer,"<->",b.peer);
+  }
+}
+
+function connectToHost(){
+  connToHost=peer.connect(ROOM_HOST_ID);
+  connToHost.on("open",()=>{
+    setStatus("Connected to host. Click “Next Partner”.");
+    nextBtn.disabled=false;
+  });
+  connToHost.on("data",msg=>{
+    if(msg.type==="partner") connectToPartner(msg.id);
+  });
+}
+
+/* ====== 5. Media handling ====== */
+async function startStream(){
+  if(myStream)return;
+  myStream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+  myVideo.srcObject=myStream;
+}
+
+function connectToPartner(pid){
+  startStream().then(()=>{
+    const call=peer.call(pid,myStream);
+    bindCall(call);
+  });
+}
+
+function bindCall(call){
+  currentCall=call;
+  connectedPartner=call.peer;
+  call.on("stream",s=>{
+    remoteVideo.srcObject=s;
+    setStatus("Connected with "+call.peer);
+    nextBtn.disabled=false;
+  });
+  call.on("close",handleDisconnect);
+  call.on("error",handleDisconnect);
+}
+
+function handleDisconnect(){
+  if(currentCall){try{currentCall.close();}catch{}currentCall=null;}
+  connectedPartner=null;
+  remoteVideo.srcObject=null;
+  setStatus("Partner disconnected.");
+}
+
+/* ====== 6. “Next Partner” logic ====== */
+nextBtn.onclick=async()=>{
+  nextBtn.disabled=true;
+  // notify old partner + close
+  if(connectedPartner){
+    try{
+      const dc=peer.connect(connectedPartner);
+      dc.on("open",()=>{dc.send({type:"disconnect"});dc.close();});
+    }catch{}
+    handleDisconnect();
+  }
+  await startStream();
+  if(!connToHost||!connToHost.open)connectToHost();
+  else connToHost.send({type:"joinQueue"});
+  setStatus("Waiting for next partner…");
+};
+</script>
+</body>
+</html>

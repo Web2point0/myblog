@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>RuneScape Banner</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 335px;
+      height: 249px;
+      overflow: hidden;
+      border: none;
+      background: transparent;
+    }
+    #banner {
+      width: 335px;
+      height: 249px;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      box-sizing: border-box;
+      padding: 8px;
+      color: #fff;
+    }
+    h2 {
+      margin: 0;
+      padding: 4px 0;
+      font-size: 1.1em;
+      text-align: center;
+    }
+    .banner-skills {
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(3, auto);
+      justify-content: center;
+      align-content: start;
+      gap: 4px 8px;
+      margin: 0;
+      padding: 0;
+      flex-grow: 1;
+      font-size: 85%;
+      overflow: hidden;
+      text-align: center;
+    }
+    .banner-skills li {
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <div id="banner">
+    <h2 id="username"></h2>
+    <ul id="skills" class="banner-skills"></ul>
+  </div>
+
+  <script src="banner.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const username = params.get("username") || "Player";
+    const game = params.get("game") || "rs3";
+    const color = params.get("color") || "#fff";
+    const font = params.get("font") || "Arial, sans-serif";
+    const mode = params.get("mode") || "text";
+    const bgId = params.get("bg");
+    const gradient = params.get("gradient");
+
+    const WORKER_URL = "https://rs3-banner-worker.clip-devious-turf.workers.dev"; // 🔹 your Worker URL
+
+    const banner = document.getElementById("banner");
+    banner.style.color = color;
+    banner.style.fontFamily = font;
+
+    // ✅ Background logic
+    if (bgId) {
+      banner.style.backgroundImage = `url(${WORKER_URL}/bg/${bgId})`;
+      banner.style.backgroundSize = "cover";
+      banner.style.backgroundPosition = "center";
+    } else if (gradient) {
+      banner.style.background = decodeURIComponent(gradient);
+    } else {
+      banner.style.background = "linear-gradient(135deg, #1abc9c, #16a085)";
+    }
+
+    // ✅ Username
+    document.getElementById("username").textContent = username;
+
+    // ✅ Fetch and render skills
+    fetchHiscores(username, game)
+      .then((skills) => {
+        // 🔹 explicitly pass `game` to renderSkills
+        renderSkills(skills, document.getElementById("skills"), mode, game);
+      })
+      .catch((err) => {
+        console.error("Error loading stats:", err);
+        document.getElementById("skills").innerHTML = "<li>Error loading stats</li>";
+      });
+  </script>
+</body>
+</html>

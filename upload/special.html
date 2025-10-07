@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>View uploaded file</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body {
+      font-family: system-ui, Segoe UI, Roboto, Arial;
+      padding: 20px;
+      background: #f3f6fa;
+    }
+    .card {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 18px;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    }
+    img, iframe {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 10px 0;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #f7f7f7;
+      padding: 10px;
+      border-radius: 6px;
+    }
+    .meta {
+      color: #555;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1 id="title">File viewer</h1>
+    <div id="meta" class="meta"></div>
+    <div id="display"></div>
+    <p id="download"></p>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const id = params.get('id');
+
+    // 🔹 Replace this with your Worker endpoint
+    const WORKER_BASE = "https://file-uploader.clip-devious-turf.workers.dev";
+
+    if(!id){
+      document.getElementById('meta').textContent = 'No id provided (?id=abc123)';
+      throw new Error("No file id in URL");
+    }
+
+    const fetchUrl = `${WORKER_BASE}/file/${encodeURIComponent(id)}`;
+
+    async function load() {
+      const res = await fetch(fetchUrl);
+      if(!res.ok){
+        document.getElementById('meta').textContent = `Error: ${res.status} ${res.statusText}`;
+        return;
+      }
+
+      const ct = res.headers.get('Content-Type') || 'application/octet-stream';
+      const disp = res.headers.get('Content-Disposition') || '';
+      const filenameMatch = disp.match(/filename="?(.*?)"?$/);
+      const filename = filenameMatch ? filenameMatch[1] : id;
+
+      document.getElementById('meta').textContent = `${filename} — ${ct}`;
+
+      if(ct.startsWith('image/')){
+        const blob = await res.blob();
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(blob);
+        document.getElementById('display').appendChild(img);
+      } else if (ct === 'application/pdf'){
+        const blob = await res.blob();
+        const frame = document.createElement('iframe');
+        frame.src = URL.createObjectURL(blob);
+        frame.style.height = '800px';
+        document.getElementById('display').appendChild(frame);
+      } else {
+        const blob = await res.blob();
+
+        // Download link
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        a.textContent = 'Download file';
+        document.getElementById('download').appendChild(a);
+
+        // Try to display as text if reasonable
+        try {
+          const txt = await blob.text();
+          const pre = document.createElement('pre');
+          pre.textContent = txt.slice(0, 20000); // preview up to 20k chars
+          document.getElementById('display').appendChild(pre);
+        } catch(e){
+          // binary file not previewable
+        }
+      }
+    }
+
+    load().catch(err => {
+      document.getElementById('meta').textContent = 'Error: ' + err.message;
+    });
+  </script>
+</body>
+</html>

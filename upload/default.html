@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Protected Page</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="login-container">
+    <h2>Enter Password</h2>
+    
+    <div class="password-wrapper">
+      <input type="password" id="password" placeholder="Password">
+      <button type="button" id="togglePassword" aria-label="Show/Hide password">👁️</button>
+    </div>
+    
+    <label>
+      <input type="checkbox" id="remember"> Remember me
+    </label><br>
+    <button id="loginBtn">Unlock</button>
+    <p id="error"></p>
+  </div>
+
+  <div id="content" style="display:none;">
+    <h1>Welcome to the protected page!</h1>
+    <p>This is the content that was locked behind the password.</p>
+    
+    <main class="container">
+    <h1>File & Image Uploader</h1>
+    <p class="hint">You can upload multiple files as long as their combined size ≤ 18.75 MiB (see note).</p>
+
+    <form id="uploadForm">
+      <label class="filelabel">
+        Choose files
+        <input id="fileInput" type="file" multiple />
+      </label>
+
+      <div id="summary"></div>
+      <button id="uploadBtn" type="submit">Upload</button>
+    </form>
+
+    <div id="result"></div>
+
+    <hr />
+    <p class="small">After uploading you'll get a short ID and a shareable URL (special.html?id=SHORTID).</p>
+  </main>
+
+  <script src="script.js"></script>
+    
+    <button id="logout">Logout</button>
+  </div>
+
+  <script src="javascript.js"></script>
+</body>
+</html>

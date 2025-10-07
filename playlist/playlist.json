@@ -1,0 +1,5 @@
+[
+  { "title": "Someone like you", "artist": "Adele", "src": "music/song1.mp3" },
+  { "title": "What I've Done", "artist": "Linkin Park", "src": "music/song2.mp3" },
+  { "title": "Satellite", "artist": "Guster", "src": "music/song3.mp3" }
+]

@@ -1,0 +1,267 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Meet Up — PeerJS Cloud + Auto Host Recovery</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { background:#0b1220; color:#dbeafe; font-family:Inter,system-ui,Arial; text-align:center; padding:18px; }
+    h1 { margin:6px 0 12px; font-size:20px; }
+    #info { font-size:14px; color:#9fb7d7; margin-bottom:12px; }
+    .videos { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+    video { width:44%; max-width:420px; height:300px; background:black; border-radius:10px; object-fit:cover; }
+    button { background:#06b6d4; color:#032; border:none; padding:10px 16px; border-radius:8px; font-weight:700; cursor:pointer; }
+    button:disabled { opacity:0.5; cursor:not-allowed; }
+    #status { margin-top:10px; color:#9fb7d7; }
+    #hostBadge { display:inline-block; padding:4px 8px; background:#0ea5a3; color:#012; border-radius:6px; font-weight:700; margin-left:8px; }
+    @media (max-width:760px){ video{width:95%;height:220px}.videos{flex-direction:column} }
+  </style>
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+</head>
+<body>
+<h1>Meet Up — Click-to-Match</h1>
+<div id="info">
+  Peer ID: <span id="peerId">connecting...</span>
+  <span id="hostBadge" style="display:none">HOST</span>
+</div>
+
+<div class="videos">
+  <div>
+    <div style="font-size:13px;color:#9fb7d7">Local</div>
+    <video id="myVideo" autoplay muted playsinline></video>
+  </div>
+  <div>
+    <div style="font-size:13px;color:#9fb7d7">Remote</div>
+    <video id="remoteVideo" autoplay playsinline></video>
+  </div>
+</div>
+
+<div style="margin-top:12px">
+  <button id="nextBtn">Next Partner</button>
+</div>
+<div id="status">Status: initializing…</div>
+
+<script>
+/* ========= CONFIG ========= */
+const ICE_CONFIG = {
+  iceServers: [
+    { urls: ["stun:stun.metered.ca:80","stun:stun.l.google.com:19302"] },
+    {
+      urls: [
+        "turn:turn.metered.ca:80",
+        "turn:turn.metered.ca:443?transport=tcp",
+        "turns:turn.metered.ca:443?transport=tcp"
+      ],
+      username: "xxxxxxxxxxxxxxxxxxx",
+      credential: "xxxxxxxxxxxxxxxxx"
+    }
+  ]
+};
+const ROOM_HOST_ID = "community-webrtc-roomhost";
+
+/* UI elements */
+const peerIdEl=document.getElementById("peerId");
+const statusEl=document.getElementById("status");
+const hostBadgeEl=document.getElementById("hostBadge");
+const myVideo=document.getElementById("myVideo");
+const remoteVideo=document.getElementById("remoteVideo");
+const nextBtn=document.getElementById("nextBtn");
+
+/* Globals */
+let userPeer=null, hostPeer=null, connToHost=null;
+let isHost=false,myId=null,myStream=null,currentCall=null;
+let connectedPartner=null;
+let hostQueue=[];
+
+/* Ping heartbeat */
+let pingIntervalId=null,lastPong=Date.now();
+const PING_INTERVAL=3000,PONG_TIMEOUT=9000;
+
+function setStatus(s){statusEl.textContent="Status: "+s;}
+function setPeerId(id){peerIdEl.textContent=id;}
+function showHostBadge(show){hostBadgeEl.style.display=show?"inline-block":"none";}
+
+/* ========== 1. Initialize Peer ========== */
+userPeer=new Peer({config:ICE_CONFIG,debug:2});
+userPeer.on('open',id=>{
+  myId=id;setPeerId(id);setStatus("Connected to PeerJS Cloud as "+id);
+  attemptHostCreation();
+});
+
+/* Incoming call */
+userPeer.on('call',async(call)=>{
+  try{await ensureMyStream();}catch(e){setStatus("Permission denied");return;}
+  call.answer(myStream);
+  bindCall(call);
+});
+
+/* Incoming data for disconnect */
+userPeer.on('connection',conn=>{
+  conn.on('data',msg=>{
+    if(msg&&msg.type==="disconnect"){handleDisconnect();}
+  });
+});
+
+/* ========== 2. Attempt to become host ========== */
+function attemptHostCreation(){
+  if(hostPeer||isHost)return;
+  try{
+    hostPeer=new Peer(ROOM_HOST_ID,{config:ICE_CONFIG,debug:1});
+    hostPeer.on('open',()=>{
+      isHost=true;showHostBadge(true);
+      setStatus("You are the host. Waiting for queued peers.");
+      setupHostHandlers();connectClientToHost();
+    });
+    hostPeer.on('error',err=>{
+      hostPeer&&hostPeer.destroy();hostPeer=null;isHost=false;showHostBadge(false);
+      connectClientToHost();
+    });
+  }catch(e){connectClientToHost();}
+}
+
+/* ========== 3. Host queue/pairing ========== */
+function setupHostHandlers(){
+  if(!hostPeer)return;
+  function alreadyQueued(c){return hostQueue.some(x=>x.peer===c.peer);}
+  hostPeer.on('connection',conn=>{
+    conn.on('data',msg=>{
+      if(!msg||!msg.type)return;
+      if(msg.type==='ping'){try{conn.send({type:'pong',ts:msg.ts||Date.now()});}catch{}}
+      else if(msg.type==='joinQueue'){
+        if(!alreadyQueued(conn))hostQueue.push(conn);
+        maybePair();
+      }
+    });
+    conn.on('close',()=>{hostQueue=hostQueue.filter(c=>c.peer!==conn.peer);});
+    conn.on('error',()=>{hostQueue=hostQueue.filter(c=>c.peer!==conn.peer);});
+  });
+  function maybePair(){
+    while(hostQueue.length>=2){
+      const a=hostQueue.shift(),b=hostQueue.shift();
+      try{a.send({type:'partner',partnerId:b.peer,initiator:true});}catch{}
+      try{b.send({type:'partner',partnerId:a.peer,initiator:false});}catch{}
+    }
+  }
+}
+
+/* ========== 4. Host message handler ========== */
+function handleHostMessage(msg){
+  if(!msg||!msg.type)return;
+  if(msg.type==='partner'){
+    const pid=msg.partnerId,initiator=!!msg.initiator;
+    setStatus('Matched with '+pid);
+    ensureMyStream().then(()=>{
+      if(initiator){
+        const call=userPeer.call(pid,myStream);
+        bindCall(call);
+      }else{
+        setStatus('Waiting for incoming call from '+pid);
+      }
+    });
+  }else if(msg.type==='pong'){lastPong=Date.now();}
+}
+
+/* ========== 5. Ping loop ========== */
+function startPingLoop(){
+  stopPingLoop();
+  lastPong=Date.now();
+  pingIntervalId=setInterval(()=>{
+    if(!connToHost||!connToHost.open)return;
+    try{connToHost.send({type:'ping',ts:Date.now()});}catch{}
+    if(Date.now()-lastPong>PONG_TIMEOUT){
+      try{connToHost.close();}catch{}
+      connToHost=null;
+      setTimeout(attemptHostCreation,300+Math.random()*700);
+      stopPingLoop();
+    }
+  },PING_INTERVAL);
+}
+function stopPingLoop(){if(pingIntervalId){clearInterval(pingIntervalId);pingIntervalId=null;}}
+
+/* ========== 6. Media + Call Handling ========== */
+async function ensureMyStream(){
+  if(myStream)return myStream;
+  myStream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+  myVideo.srcObject=myStream;return myStream;
+}
+function stopStreams(){
+  if(myStream){myStream.getTracks().forEach(t=>t.stop());myStream=null;}
+  remoteVideo.srcObject=null;
+}
+function bindCall(call){
+  currentCall=call;connectedPartner=call.peer;
+  call.on('stream',rs=>{
+    remoteVideo.srcObject=rs;
+    setStatus('In call with '+call.peer+'. Click Next Partner to switch.');
+    nextBtn.disabled=false;
+  });
+  call.on('close',handleDisconnect);
+  call.on('error',handleDisconnect);
+}
+
+/* Disconnect handler */
+function handleDisconnect(){
+  if(currentCall){try{currentCall.close();}catch{}currentCall=null;}
+  if(connectedPartner){connectedPartner=null;}
+  remoteVideo.srcObject=null;
+  setStatus('Partner disconnected. Click Next Partner.');
+  nextBtn.disabled=false;
+}
+
+/* ========== 7. Connect client->host ========== */
+function connectClientToHost(){
+  if(connToHost&&connToHost.open)return;
+  connToHost=userPeer.connect(ROOM_HOST_ID,{reliable:true});
+  connToHost.on('open',()=>{
+    setStatus(isHost?'You are host.':'Connected to host coordinator.');
+    startPingLoop();
+  });
+  connToHost.on('data',handleHostMessage);
+  connToHost.on('close',()=>{stopPingLoop();if(!isHost)setTimeout(attemptHostCreation,400+Math.random()*700);});
+  connToHost.on('error',()=>{stopPingLoop();setTimeout(attemptHostCreation,400+Math.random()*700);});
+}
+
+/* ========== 8. Next Partner Logic (mutual disconnect + new match) ========== */
+nextBtn.addEventListener('click',async()=>{
+  nextBtn.disabled=true;
+
+  // --- Step 1: Notify partner + close old call
+  if(connectedPartner){
+    try{
+      const dc=userPeer.connect(connectedPartner);
+      dc.on('open',()=>{dc.send({type:'disconnect'});dc.close();});
+    }catch{}
+    if(currentCall){try{currentCall.close();}catch{}currentCall=null;}
+    connectedPartner=null;remoteVideo.srcObject=null;
+  }
+
+  // --- Step 2: Start/reuse stream
+  try{await ensureMyStream();}catch(e){setStatus('Camera/mic access denied');nextBtn.disabled=false;return;}
+
+  // --- Step 3: Ensure host connection
+  if(isHost && (!connToHost||!connToHost.open)) connectClientToHost();
+  if((!connToHost||!connToHost.open)&&!isHost){
+    setStatus('Connecting to host...');connectClientToHost();await new Promise(r=>setTimeout(r,500));
+    if(!connToHost||!connToHost.open){setStatus('No host reachable. Trying to become host...');attemptHostCreation();nextBtn.disabled=false;return;}
+  }
+
+  // --- Step 4: Request matchmaking
+  try{
+    connToHost.send({type:'joinQueue',ts:Date.now()});
+    setStatus('Waiting in queue for next partner...');
+  }catch(e){
+    setStatus('Failed to contact host. Try again.');
+    nextBtn.disabled=false;
+  }
+});
+
+/* ========== 9. Cleanup ========== */
+window.addEventListener('beforeunload',()=>{
+  try{connToHost&&connToHost.close();}catch{}
+  try{hostPeer&&hostPeer.destroy();}catch{}
+  try{userPeer&&userPeer.destroy();}catch{}
+  stopStreams();
+});
+</script>
+</body>
+</html>

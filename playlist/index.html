@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MP3 Playlist</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="playlist-container">
+    <div id="player-controls">
+      <button id="prev">⏮</button>
+      <button id="play">▶</button>
+      <button id="pause">⏸</button>
+      <button id="stop">⏹</button>
+      <button id="next">⏭</button>
+      <button id="shuffle">🔀</button>
+      <input type="range" id="volume" min="0" max="1" step="0.05" value="0.5">
+    </div>
+    <div id="now-playing">Select a track...</div>
+    <ul id="playlist"></ul>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

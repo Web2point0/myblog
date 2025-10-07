@@ -1,0 +1,514 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Meet Up — PeerJS Cloud + Auto Host Recovery</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { background: #0b1220; color: #dbeafe; font-family: Inter, system-ui, Arial; text-align:center; padding:18px; }
+    h1 { margin: 6px 0 12px 0; font-size:20px; }
+    #info { font-size:14px; color:#9fb7d7; margin-bottom:12px; }
+    .videos { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+    video { width: 44%; max-width: 420px; height: 300px; background:black; border-radius:10px; object-fit:cover; }
+    button { background:#06b6d4; color:#032; border:none; padding:10px 16px; border-radius:8px; font-weight:700; cursor:pointer; }
+    button:disabled { opacity:0.5; cursor:not-allowed; }
+    #status { margin-top:10px; color:#9fb7d7; }
+    #hostBadge { display:inline-block; padding:4px 8px; background:#0ea5a3; color:#012; border-radius:6px; font-weight:700; margin-left:8px; }
+    @media (max-width:760px) { video{ width: 95%; height:220px } .videos{ flex-direction:column; } }
+  </style>
+  <link rel="stylesheet" href="">
+  <!-- PeerJS -->
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+</head>
+<body>
+  <h1>Meet Up — Click-to-Match</h1>
+  <div id="info">
+    Peer ID: <span id="peerId">connecting...</span>
+    <span id="hostBadge" style="display:none">HOST</span>
+  </div>
+
+  <div class="videos">
+    <div>
+      <div style="font-size:13px; color:#9fb7d7">Local</div>
+      <video id="myVideo" autoplay muted playsinline></video>
+    </div>
+    <div>
+      <div style="font-size:13px; color:#9fb7d7">Remote</div>
+      <video id="remoteVideo" autoplay playsinline></video>
+    </div>
+  </div>
+
+  <div style="margin-top:12px">
+    <button id="nextBtn">Next Partner</button>
+  </div>
+
+  <div id="status">Status: initializing…</div>
+
+<script>
+/* =========
+  CONFIG — replace these with your Metered.ca credentials
+  ========= */
+const ICE_CONFIG = {
+  iceServers: [
+    { urls: ["stun:stun.metered.ca:80", "stun:stun.l.google.com:19302"] },
+    {
+      urls: [
+        "turn:turn.metered.ca:80",
+        "turn:turn.metered.ca:443?transport=tcp",
+        "turns:turn.metered.ca:443?transport=tcp"
+      ],
+      username: "a1b6372ba64416abdabd7b44",
+      credential: "do1BGC+KPZA6pmdF"
+    }
+  ]
+};
+
+/* Room host ID (keeps single host per page). You can hash pathname if you want page-specific rooms. */
+const ROOM_HOST_ID = "community-webrtc-roomhost";
+
+/* UI elements */
+const peerIdEl = document.getElementById("peerId");
+const statusEl = document.getElementById("status");
+const hostBadgeEl = document.getElementById("hostBadge");
+const myVideo = document.getElementById("myVideo");
+const remoteVideo = document.getElementById("remoteVideo");
+const nextBtn = document.getElementById("nextBtn");
+
+/* Globals */
+let userPeer = null;       // the user's PeerJS instance (unique ID)
+let hostPeer = null;       // optional PeerJS instance that claims ROOM_HOST_ID (only on host)
+let connToHost = null;     // DataConnection from userPeer -> hostPeer
+let isHost = false;
+let myId = null;
+let myStream = null;
+let currentCall = null;
+
+/* Host-side queue (only used by hostPeer) */
+let hostQueue = []; // array of DataConnection objects
+
+/* Ping/heartbeat */
+let pingIntervalId = null;
+let lastPong = Date.now();
+const PING_INTERVAL = 3000; // ms
+const PONG_TIMEOUT = 9000;  // ms
+
+/* Helper UI */
+function setStatus(s) { statusEl.textContent = "Status: " + s; }
+function setPeerId(id) { peerIdEl.textContent = id; }
+function showHostBadge(show) { hostBadgeEl.style.display = show ? "inline-block" : "none"; }
+
+/* ---------------------------
+   1) Create the user's Peer
+   --------------------------- */
+userPeer = new Peer({ config: ICE_CONFIG, debug: 2 });
+
+userPeer.on('open', (id) => {
+  myId = id;
+  setPeerId(id);
+  setStatus("Connected to PeerJS Cloud as " + id);
+  // Try to become host (non-blocking); if fail, we will connect to existing host
+  attemptHostCreation();
+});
+
+/* Global incoming call handler (answering) */
+userPeer.on('call', async (call) => {
+  // Ensure we have media
+  try {
+    await ensureMyStream();
+  } catch (err) {
+    console.error('Could not get media for incoming call', err);
+    setStatus('Permission denied or no camera/mic');
+    return;
+  }
+
+  // Answer and attach remote stream
+  call.answer(myStream);
+  bindCall(call);
+});
+
+/* Generic errors */
+userPeer.on('error', (err) => {
+  console.warn('Peer error', err);
+});
+
+/* ---------------------------
+   2) Attempt to become host
+   - We create a separate Peer instance with ROOM_HOST_ID.
+   - If that open() succeeds, we are the host and we listen for connections.
+   - If creating the host fails (id already taken), we connect to the existing host.
+   --------------------------- */
+function attemptHostCreation() {
+  if (hostPeer || isHost) return;
+
+  try {
+    hostPeer = new Peer(ROOM_HOST_ID, { config: ICE_CONFIG, debug: 1 });
+
+    hostPeer.on('open', () => {
+      // Successfully claimed ROOM_HOST_ID -> this browser is the host broker
+      console.log('Host created locally with id', ROOM_HOST_ID);
+      isHost = true;
+      showHostBadge(true);
+      setStatus('You are the host. Waiting for queued peers.');
+      setupHostHandlers();
+      // Ensure we also have a client-side DataConnection to our host instance so the host user can queue too:
+      connectClientToHost();
+    });
+
+    hostPeer.on('error', (err) => {
+      // If error occurs (commonly "unavailable-id"), host already exists — fallback to connect to host
+      console.log('Could not create host (probably taken):', err && err.message);
+      hostPeer && hostPeer.destroy && hostPeer.destroy();
+      hostPeer = null;
+      isHost = false;
+      showHostBadge(false);
+      connectClientToHost();
+    });
+
+  } catch (e) {
+    // If constructor throws synchronously, fallback to connecting
+    console.error('Failed to instantiate hostPeer:', e);
+    hostPeer = null;
+    isHost = false;
+    connectClientToHost();
+  }
+}
+
+/* Connect the userPeer -> ROOM_HOST_ID (used by regular clients and host user too) */
+function connectClientToHost() {
+  // If already connected, keep using it
+  if (connToHost && connToHost.open) return;
+
+  connToHost = userPeer.connect(ROOM_HOST_ID, { reliable: true });
+
+  connToHost.on('open', () => {
+    console.log('DataConnection to host opened');
+    setStatus('Connected to host coordinator.');
+    lastPong = Date.now();
+    startPingLoop();
+  });
+
+  connToHost.on('data', (msg) => {
+    handleHostMessage(msg);
+  });
+
+  connToHost.on('close', () => {
+    console.log('Host connection closed');
+    stopPingLoop();
+    if (!isHost) {
+      setStatus('Host disconnected — attempting to become new host...');
+      // Try to become host after short delay to avoid thundering herd
+      setTimeout(attemptHostCreation, 400 + Math.floor(Math.random()*700));
+    }
+  });
+
+  connToHost.on('error', (err) => {
+    console.warn('connToHost error', err);
+    stopPingLoop();
+    // Try to re-elect host
+    setTimeout(attemptHostCreation, 500 + Math.floor(Math.random()*600));
+  });
+}
+
+/* ---------------------------
+   3) Host behavior: accept DataConnections, queue participants, pair oldest two
+   - hostPeer.on('connection') receives DataConnection objects from clients.
+   - When a client sends {type:'joinQueue'}, push its DataConnection into hostQueue (if not already).
+   - Pair queue items FIFO and notify both sides with {type:'partner', partnerId, initiator}
+   --------------------------- */
+function setupHostHandlers() {
+  if (!hostPeer) return;
+
+  // small helper to index queue by peer id
+  function alreadyQueued(conn) { return hostQueue.some(c => c.peer === conn.peer); }
+
+  hostPeer.on('connection', (conn) => {
+    console.log('Host got connection from', conn.peer);
+
+    conn.on('data', (msg) => {
+      if (!msg || !msg.type) return;
+      if (msg.type === 'ping') {
+        // reply to keep client heartbeat happy
+        try { conn.send({ type: 'pong', ts: msg.ts || Date.now() }); } catch(e){}
+      } else if (msg.type === 'joinQueue') {
+        // client wants a partner
+        if (!alreadyQueued(conn)) {
+          hostQueue.push(conn);
+          console.log('Enqueued', conn.peer, 'queueLen=', hostQueue.length);
+        } else {
+          console.log('Conn already queued:', conn.peer);
+        }
+        maybePair();
+      }
+    });
+
+    conn.on('close', () => {
+      // remove from queue if present
+      hostQueue = hostQueue.filter(c => c.peer !== conn.peer);
+      console.log('Host: connection closed, removed from queue if present:', conn.peer);
+    });
+
+    conn.on('error', (err) => {
+      console.warn('Host: connection error from', conn.peer, err);
+      hostQueue = hostQueue.filter(c => c.peer !== conn.peer);
+    });
+  });
+
+  function maybePair() {
+    // Pair while we have at least two waiting
+    while (hostQueue.length >= 2) {
+      const aConn = hostQueue.shift();
+      const bConn = hostQueue.shift();
+
+      // defensive: ensure open before sending
+      try {
+        aConn.send({ type: 'partner', partnerId: bConn.peer, initiator: true });
+      } catch (e) { console.warn('Failed to notify A', e); }
+      try {
+        bConn.send({ type: 'partner', partnerId: aConn.peer, initiator: false });
+      } catch (e) { console.warn('Failed to notify B', e); }
+      console.log('Paired', aConn.peer, '<->', bConn.peer);
+    }
+  }
+}
+
+/* ---------------------------
+   4) Client handling of messages from host
+   --------------------------- */
+function handleHostMessage(msg) {
+  if (!msg || !msg.type) return;
+
+  if (msg.type === 'partner') {
+    // Received an assignment to connect to partnerId
+    const partnerId = msg.partnerId;
+    const initiator = !!msg.initiator;
+    console.log('Received partner message — partnerId:', partnerId, 'initiator:', initiator);
+    setStatus('Matched with ' + partnerId + '. Connecting...');
+    // start media if not already
+    ensureMyStream()
+      .then(() => {
+        if (initiator) {
+          // initiate call
+          const call = userPeer.call(partnerId, myStream);
+          bindCall(call);
+        } else {
+          // non-initiator: wait for incoming call (peer.on('call') will handle it)
+          setStatus('Waiting for incoming call from ' + partnerId + '...');
+        }
+      })
+      .catch(err => {
+        console.error('Cannot get media before call', err);
+        setStatus('Could not get camera/mic — allow access and try Next Partner again.');
+      });
+  } else if (msg.type === 'pong') {
+    lastPong = Date.now();
+  } else if (msg.type === 'info') {
+    // reserved for future info messages
+    console.log('host info:', msg);
+  }
+}
+
+/* ---------------------------
+   5) Ping loop (client side) to detect host death and trigger election
+   --------------------------- */
+function startPingLoop() {
+  stopPingLoop();
+  lastPong = Date.now();
+  pingIntervalId = setInterval(() => {
+    if (!connToHost || connToHost.open === false) return;
+    try {
+      connToHost.send({ type: 'ping', ts: Date.now() });
+    } catch (e) {
+      console.warn('Ping send failed', e);
+    }
+    // If we haven't seen a pong for a while, assume host is down and attempt election
+    if (Date.now() - lastPong > PONG_TIMEOUT) {
+      console.log('No pong from host; assuming host dead. Attempting to become host...');
+      // Clean up and try to create host
+      try {
+        connToHost.close && connToHost.close();
+      } catch(e){}
+      connToHost = null;
+      setTimeout(attemptHostCreation, 300 + Math.floor(Math.random()*700)); // randomized backoff
+      stopPingLoop();
+    }
+  }, PING_INTERVAL);
+}
+
+function stopPingLoop() {
+  if (pingIntervalId) {
+    clearInterval(pingIntervalId);
+    pingIntervalId = null;
+  }
+}
+
+/* ---------------------------
+   6) Media helpers + call handling
+   --------------------------- */
+async function ensureMyStream() {
+  if (myStream) return myStream;
+  // request camera & mic (must be user gesture in many browsers; we call this on button click)
+  myStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+  myVideo.srcObject = myStream;
+  return myStream;
+}
+
+function bindCall(call) {
+  currentCall = call;
+
+  call.on('stream', (remoteStream) => {
+    remoteVideo.srcObject = remoteStream;
+    setStatus('In call with ' + call.peer + '. Click Next Partner to switch when ready.');
+    nextBtn.disabled = false;
+  });
+
+  call.on('close', () => {
+    console.log('Call closed by peer');
+    remoteVideo.srcObject = null;
+    currentCall = null;
+    setStatus('Call ended. Click Next Partner to find a new partner.');
+    nextBtn.disabled = false;
+  });
+
+  call.on('error', (err) => {
+    console.warn('Call error', err);
+    try { call.close(); } catch(e){}
+    remoteVideo.srcObject = null;
+    currentCall = null;
+    setStatus('Call error. Click Next Partner to try again.');
+    nextBtn.disabled = false;
+  });
+
+  // while in call, we disable automatic re-queue; user must click Next
+  nextBtn.disabled = false;
+}
+
+/* ---------------------------
+   7) "Next Partner" button logic
+   - When clicked: ensure media permission (prompts), connect to host if needed, then send joinQueue
+   --------------------------- */
+nextBtn.addEventListener('click', async () => {
+  nextBtn.disabled = true; // avoid spam clicking
+  setStatus('Preparing camera/mic...');
+  try {
+    await ensureMyStream();
+  } catch (err) {
+    console.error('getUserMedia failed', err);
+    setStatus('Could not access camera/mic. Allow access and try again.');
+    nextBtn.disabled = false;
+    return;
+  }
+
+  // If we are host but don't have a client->host connection, create one so the host user can queue
+  if (isHost && (!connToHost || connToHost.open === false)) {
+    connectClientToHost();
+    // brief wait for connection
+    await new Promise(r => setTimeout(r, 250));
+  }
+
+  // ensure connection to the host exists
+  if ((!connToHost || connToHost.open === false) && !isHost) {
+    setStatus('Connecting to host coordinator — please wait...');
+    // attempt connect and give it a short window
+    connectClientToHost();
+    await new Promise(r => setTimeout(r, 600));
+    if (!connToHost || connToHost.open === false) {
+      setStatus('No host reachable right now. Trying to become host...');
+      // attempt to become host now
+      attemptHostCreation();
+      // re-enable button so user can try again
+      nextBtn.disabled = false;
+      return;
+    }
+  }
+
+  // Now request to join queue
+  try {
+    connToHost.send({ type: 'joinQueue', ts: Date.now() });
+    setStatus('Waiting in queue for a partner...');
+  } catch (e) {
+    console.warn('Failed to send joinQueue', e);
+    setStatus('Failed to contact host. Please try again.');
+    nextBtn.disabled = false;
+  }
+});
+
+/* ---------------------------
+   8) Connect-to-partner helper (if client is initiator)
+   --------------------------- */
+function connectToPartner(partnerId, initiatorFlag) {
+  // This function is now not strictly necessary because handleHostMessage does the logic,
+  // but it's useful if host wants to force one side to call.
+  console.log('connectToPartner called for partnerId', partnerId, 'initiator:', initiatorFlag);
+  if (currentCall) {
+    try { currentCall.close(); } catch(e){}
+    currentCall = null;
+  }
+
+  ensureMyStream()
+    .then(() => {
+      if (initiatorFlag) {
+        // start call to partner
+        const call = userPeer.call(partnerId, myStream);
+        bindCall(call);
+      } else {
+        // non-initiator: just wait for incoming call (peer.on('call') handles it)
+        setStatus('Waiting for incoming call from ' + partnerId + '...');
+      }
+    })
+    .catch(err => {
+      console.error('Cannot start media before connecting to partner', err);
+      setStatus('Cannot access camera/mic. Allow access and try Next Partner again.');
+      nextBtn.disabled = false;
+    });
+}
+
+/* ---------------------------
+   9) Utility: when host created, ensure the host user's client->host DataConnection exists
+   --------------------------- */
+function connectClientToHost() {
+  if (connToHost && connToHost.open) return;
+  try {
+    connToHost = userPeer.connect(ROOM_HOST_ID, { reliable: true });
+
+    connToHost.on('open', () => {
+      console.log('Client->host connection opened');
+      setStatus(isHost ? 'You are host — ready to pair when people click Next.' : 'Connected to host coordinator.');
+      lastPong = Date.now();
+      startPingLoop();
+    });
+
+    connToHost.on('data', (msg) => handleHostMessage(msg));
+
+    connToHost.on('close', () => {
+      console.log('Client->host closed');
+      stopPingLoop();
+      if (!isHost) {
+        setStatus('Host disappeared. Trying to re-elect...');
+        setTimeout(attemptHostCreation, 300 + Math.floor(Math.random()*800));
+      }
+    });
+
+    connToHost.on('error', (err) => {
+      console.warn('Client->host data error', err);
+      stopPingLoop();
+      setTimeout(attemptHostCreation, 300 + Math.floor(Math.random()*800));
+    });
+
+  } catch (e) {
+    console.error('connectClientToHost failed', e);
+  }
+}
+
+/* ---------------------------
+   10) Clean up before unload (best-effort)
+   --------------------------- */
+window.addEventListener('beforeunload', () => {
+  try { connToHost && connToHost.close && connToHost.close(); } catch(e){}
+  try { hostPeer && hostPeer.destroy && hostPeer.destroy(); } catch(e){}
+  try { userPeer && userPeer.destroy && userPeer.destroy(); } catch(e){}
+});
+
+/* End of script */
+</script>
+</body>
+</html>

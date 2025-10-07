@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>RuneScape Banner Generator</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* extra layout styles for the generator page */
+	body {
+  font-family: Arial, sans-serif;
+  background: #1a1a1a;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+.generator {
+  max-width: 600px;
+  background: #2b2b2b;
+  padding: 20px;
+  border-radius: 10px;
+  }
+    .Box {
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 400px;
+    }
+    .Box label {
+      font-size: 14px;
+	  }
+    textarea {
+      width: 100%;
+      height: 80px;
+      resize: none;
+      font-family: monospace;
+    }
+    button {
+      cursor: pointer;
+      padding: 6px 12px;
+      font-size: 14px;
+    }
+	</style>
+</head>
+<body>
+<div class="generator">
+  <h1>RuneScape Banner Generator</h1>
+
+  <div class="controls">
+    <input type="text" id="username" placeholder="Enter RSN" />
+
+    <input type="color" id="textColor" value="#ffffff" onchange="setTextColor(this.value)" />
+    <button onclick="setRandomGradient()">Random Gradient</button>
+    <input type="file" id="bgUpload" accept="image/*" />
+    <button onclick="generateIframe(
+      document.getElementById('username').value
+    )">Generate Banner</button>
+  </div>
+
+  <h2>Live Preview</h2>
+  <div id="banner-container" class="banner-container">
+    <p>Waiting for username...</p>
+  </div>
+
+  <h2>Embed Code</h2>
+  <textarea id="iframe-code" readonly onclick="this.select()"></textarea>
+
+  <h2>Iframe Preview</h2>
+  <div id="iframe-preview"></div>
+
+  <!-- Load both logic files -->
+  <script src="banner.js"></script>
+  <script src="script.js"></script>
+  <script>
+    document.getElementById("bgUpload").addEventListener("change", e => {
+      if (e.target.files[0]) handleImageUpload(e.target.files[0]);
+    });
+  </script>
+  
+</div>
+</body>
+</html>

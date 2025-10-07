@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Protected Page</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="login-container">
+    <h2>Enter Password</h2>
+    
+    <div class="password-wrapper">
+      <input type="password" id="password" placeholder="Password">
+      <button type="button" id="togglePassword" aria-label="Show/Hide password">👁️</button>
+    </div>
+    
+    <label>
+      <input type="checkbox" id="remember"> Remember me
+    </label><br>
+    <button id="loginBtn">Unlock</button>
+    <p id="error"></p>
+  </div>
+
+  <div id="content" style="display:none;">
+    <h1>Welcome to the protected page!</h1>
+    <p>This is the content that was locked behind the password.</p>
+    
+    <a href="/hiscore/rs3/alpha/ink/">Text RS3 Banner</a>
+    <a href="/hiscore/rs3/alpha/squid/">Icons RS3 Banner</a>
+    
+    <button id="logout">Logout</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>RuneScape Banner Generator</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<style>
+    /* extra layout styles for the generator page */
+	body {
+  font-family: Arial, sans-serif;
+  background: #1a1a1a;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+.generator {
+  max-width: 600px;
+  background: #2b2b2b;
+  padding: 20px;
+  border-radius: 10px;
+  }
+    .Box {
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 400px;
+    }
+    .Box label {
+      font-size: 14px;
+	  }
+    textarea {
+      width: 100%;
+      height: 80px;
+      resize: none;
+      font-family: monospace;
+    }
+    button {
+      cursor: pointer;
+      padding: 6px 12px;
+      font-size: 14px;
+    }
+  </style>
+  
+<div class="generator">
+  <h1>RuneScape Banner Generator</h1>
+
+  <div class="controls">
+    <input type="text" id="username" placeholder="Enter RSN" />
+
+    <label for="game">Game:</label>
+    <select id="game">
+      <option value="rs3" selected>RuneScape 3</option>
+      <option value="osrs">Old School RuneScape</option>
+    </select>
+
+    <label for="mode">Display:</label>
+    <select id="mode" onchange="setMode(this.value)">
+      <option value="text">Text + Levels</option>
+      <option value="icons">Icons + Levels</option>
+    </select>
+
+    <label for="font">Font:</label>
+    <select id="font" onchange="setFontFamily(this.value)">
+      <option value="Arial, sans-serif">Arial</option>
+      <option value="Verdana, sans-serif">Verdana</option>
+      <option value="Times New Roman, serif">Times New Roman</option>
+      <option value="Courier New, monospace">Courier New</option>
+      <option value="Georgia, serif">Georgia</option>
+      <option value="Trebuchet MS, sans-serif">Trebuchet MS</option>
+      <option value="Tahoma, sans-serif">Tahoma</option>
+    </select>
+
+    <input type="color" id="textColor" value="#ffffff" onchange="setTextColor(this.value)" />
+    <button onclick="setRandomGradient()">Random Gradient</button>
+    <input type="file" id="bgUpload" accept="image/*" />
+    <button onclick="generateIframe(
+      document.getElementById('username').value,
+      document.getElementById('game').value
+    )">Generate Banner</button>
+  </div>
+
+  <div id="banner-container" class="banner-container">
+    <p>Live Preview</p>
+  </div>
+
+  <h2>Embed Code</h2>
+  <textarea id="iframe-code" readonly onclick="this.select()"></textarea>
+
+  <h2>Iframe Preview</h2>
+  <div id="iframe-preview"></div>
+
+  <script src="script.js"></script>
+  <script>
+    document.getElementById("bgUpload").addEventListener("change", e => {
+      if (e.target.files[0]) handleImageUpload(e.target.files[0]);
+    });
+  </script>
+  
+<iframe 
+  src="your-template.html?user=leafysailor&color=%23000000&game=osrs&font=Arial%2C%20sans-serif&mode=icons&gradient=linear-gradient(135deg%2C%20%23fbc2eb%200%25%2C%20%23a6c1ee%20100%25)" 
+  width="335" 
+  height="249" 
+  style="border:none;border-radius:8px;overflow:hidden;" 
+  scrolling="no">
+</iframe>
+
+</div>
+</body>
+</html>

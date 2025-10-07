@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>RuneScape Banner</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 335px;
+      height: 249px;
+      background: transparent;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <div id="banner" class="banner-container"></div>
+
+  <script src="banner.js"></script>
+  <script>
+    (async function () {
+      const params = new URLSearchParams(window.location.search);
+      const username = params.get("user") || "Guest";
+      const color = params.get("color") || "#ffffff";
+      const font = params.get("font") || "Arial, sans-serif";
+      const bgUrl = params.get("bgUrl");
+      const gradient = params.get("gradient");
+      const game = params.get("game") || "rs3";
+      const mode = params.get("mode") || "text";
+
+      const banner = document.getElementById("banner");
+
+      if (bgUrl) {
+        banner.style.background = `url(${bgUrl}) center/cover no-repeat`;
+      } else if (gradient) {
+        banner.style.background = gradient;
+      } else {
+        banner.style.background = "linear-gradient(135deg, #ddd, #999)";
+      }
+
+      try {
+        const data = await fetchHiscores(username, game);
+        renderBanner(banner, username, data, color, font, mode);
+      } catch (err) {
+        banner.innerHTML = `<p style="color:${color}; text-align:center;">Error loading stats</p>`;
+        console.error(err);
+      }
+    })();
+  </script>
+</body>
+</html>

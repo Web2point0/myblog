@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>PeerJS Manual Connect Video Chat</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; background: #111; color: #fff; }
+    video { width: 45%; border-radius: 10px; margin: 10px; }
+    #peer-id { margin: 10px; font-weight: bold; }
+    input, button { padding: 8px; margin: 5px; }
+  </style>
+  <link rel="stylesheet" href="">
+</head>
+<body>
+  <h2>One on One Video Chat (Manual Connect)</h2>
+  <div id="peer-id">Connecting to PeerJS...</div>
+  <input id="remoteId" placeholder="Enter partner ID" />
+  <button id="connectBtn">Connect</button>
+  <br>
+  <video id="myVideo" autoplay muted></video>
+  <video id="remoteVideo" autoplay></video>
+
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <script>
+    const iceServers = [
+      {
+        urls: [
+          "stun:stun.metered.ca:80",
+          "turn:turn.metered.ca:80",
+          "turn:turn.metered.ca:443",
+          "turns:turn.metered.ca:443"
+        ],
+        username: "YOUR_METERED_USERNAME",
+        credential: "YOUR_METERED_PASSWORD"
+      }
+    ];
+
+    const peer = new Peer({
+      host: "0.peerjs.com",
+      port: 443,
+      secure: true,
+      config: { iceServers }
+    });
+
+    const myVideo = document.getElementById("myVideo");
+    const remoteVideo = document.getElementById("remoteVideo");
+    const peerIdDisplay = document.getElementById("peer-id");
+    const connectBtn = document.getElementById("connectBtn");
+    const remoteIdInput = document.getElementById("remoteId");
+
+    let myStream;
+
+    peer.on("open", id => {
+      peerIdDisplay.innerText = "Your Peer ID: " + id;
+      console.log("My Peer ID:", id);
+    });
+
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      .then(stream => {
+        myStream = stream;
+        myVideo.srcObject = stream;
+      });
+
+    connectBtn.onclick = () => {
+      const remoteId = remoteIdInput.value;
+      if (!remoteId) return alert("Enter a partner ID");
+      const call = peer.call(remoteId, myStream);
+      call.on("stream", remoteStream => remoteVideo.srcObject = remoteStream);
+    };
+
+    peer.on("call", call => {
+      call.answer(myStream);
+      call.on("stream", remoteStream => remoteVideo.srcObject = remoteStream);
+    });
+  </script>
+</body>
+</html>

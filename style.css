@@ -1,13 +1,124 @@
+/* reset browser styles */
+html, body, div, span, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp,small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	vertical-align: baseline;
+}
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
+	display: block;
+}
 body {
-background-color: white;
-
+	line-height: 1.2;
+}
+ol { 
+	padding-left: 1.4em;
+	list-style: decimal;
+}
+ul {
+	padding-left: 1.4em;
+	list-style: square;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+} 
+/* end reset browser styles */
+body {
+     background: url('bg_page.png') #fff repeat-x top left;
+     font-family: Arial, Helvetica, sans-serif;
+	 color: #000;
+	 }
+	 
+	 #myContainer {
+  width: 335px;       /* main container */
+  max-width: 335px;   /* never expand past this */
+  padding: 10px;      /* inner spacing */
+  border: none;
+  box-sizing: border-box;
+  overflow-wrap: break-word;   /* ensures long words wrap */
+  word-break: break-word;      /* fallback */
+}
+hr {
+width: 250px;
+}
+#myContainer p,
+#myContainer h2 {
+  max-width: 300px;   /* keep text reflowing inside */
+}
+#myContainer img {
+  max-width: 250px;   /* shrink large images */
+  height: auto;       /* maintain aspect ratio */
+  display: block;     /* prevents weird inline spacing */
+}
+#iframeContainer,
+#myContainer .iframe-wrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
 }
 
+ /* Scale the iframe contents */
+#myContainer iframe {
+  transform: scale(0.60);        /* shrink to 75% (adjust as needed) */
+  transform-origin: top left;    /* scale from top-left corner */
+  width: 130%;                   /* compensate for scale */
+  height: 250px;                 /* make sure height is large enough */
+  border: none;
+  display: block;
+  padding-left: 35px;
+}
+
+/* #myContainer iframe, */
+/* #myContainer video { */
+/*   max-width: 100%;  */ /* never exceed the container */
+ /*  width: auto;    */   /* scale down proportionally */
+ /*  display: block;  */  /* avoid inline spacing issues */
+ /*  box-sizing: border-box; } */
+  
+.container { 
+           background-color: white;
+           width: 589px;
+		   border-left: 1px solid #000;
+		   border-right: 1px solid #000;
+		   border-bottom: 1px solid #000;
+		   margin-left: 40%;
+}
+nav {
+    background-color: #C1CD2E;
+	border-bottom: 1px solid #000;
+    text-align: center;
+	padding: 10px;
+}
+nav ul {
+     padding: 10px;
+	 }
+nav li {
+     display: inline;
+	 list-style-type: none;
+}
+nav a {
+     padding: 25px;
+     text-decoration: none;
+}
+nav a:hover {
+          border-bottom: 2px solid cyan;
+          background-color: orange;
+		  padding: 25px;
+
+}
+.intro {
+        padding: 5px;
+}
 .listleft {
           width: 330px;
           float: left;
 		  position: relative;
-		  background: url(scroll_middle.jpg) repeat-y center top;
+		  background: url(scroll_middle.png) repeat-y center top;
 		  text-align: left;
 		  overflow: hidden;
 		  margin-top: 90px;
@@ -20,10 +131,10 @@ p.listleft {
 		  padding-left: 20px;
 }
 .listleft:before {
-               content: url(scroll_top.jpg);
+               content: url(scroll_top.png);
 }
 .listleft:after {
-               content: url(scroll_bottom.jpg);
+               content: url(scroll_bottom.png);
 			   position: relative;
 			   bottom: -5px;
 }
@@ -32,4 +143,15 @@ p.listleft {
            margin-left: auto;
 		   margin-right: auto;
 	
+}
+footer  {
+      clear: both;
+      background-color: #C1CD2E;
+	  color: black;
+	  position: relative;
+	  bottom: 0;
+	  text-align: center;
+	  padding-top: 5px;
+	  padding-bottom: 5px;
+	  margin: 20px 0 0 0;
 }

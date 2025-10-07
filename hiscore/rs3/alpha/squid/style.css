@@ -1,0 +1,61 @@
+.banner-container {
+  width: 335px;
+  height: 249px;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.text-wrapper {
+  width: 90%;
+  height: 90%;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  text-align: center;
+  overflow: hidden;
+}
+
+.banner-username {
+  flex-shrink: 0;        /* never shrink */
+  margin: 0 0 6px 0;     /* spacing below username */
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.skills-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: auto;
+  gap: 2px;
+  justify-items: start;
+  align-items: center;
+  width: 100%;
+  margin: 0;
+  padding-left: 15%;
+  transform: scale(0.9);   /* shrink everything to 90% */
+}
+
+.skills-grid li {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.skill-icon {
+  width: 14px;
+  height: 14px;
+  vertical-align: middle;
+}
