@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Protected Page</title>
-  <link rel="stylesheet" href="style.css">
-  <title>Meet Up - Click to Chat</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Meet Up - Click to Chat</title>
 <style>
   body {
     font-family: system-ui, sans-serif;
@@ -63,26 +62,7 @@
 </style>
 </head>
 <body>
-  <div id="login-container">
-    <h2>Enter Password</h2>
-    
-    <div class="password-wrapper">
-      <input type="password" id="password" placeholder="Password">
-      <button type="button" id="togglePassword" aria-label="Show/Hide password">👁️</button>
-    </div>
-    
-    <label>
-      <input type="checkbox" id="remember"> Remember me
-    </label><br>
-    <button id="loginBtn">Unlock</button>
-    <p id="error"></p>
-  </div>
-
-  <div id="content" style="display:none;">
-    <h1>Welcome to the protected page!</h1>
-    <p>This is the content that was locked behind the password.</p>
-    
-    <h2>PeerJS Chatroulette</h2>
+  <h2>"Howdy Partner!" - Click next partner to meet up.</h2>
   <div id="status">Connecting to PeerJS...</div>
   <div class="video-container">
     <div class="video-box"><video id="myVideo" autoplay muted playsinline></video></div>
@@ -97,11 +77,11 @@
       urls: [
         "stun:stun.metered.ca:80",
         "turn:turn.metered.ca:80",
-        "turn:turn.metered.ca:443",
-        "turns:turn.metered.ca:443"
+        "turn:turn.metered.ca:443?transport=tcp",
+        "turns:turn.metered.ca:443?transport=tcp"
       ],
-      username: "xxxxxxxxxxxxxxxxxxxx",
-      credential: "xxxxxxxxxxxxxxxxxx"
+      username: "a1b6372ba64416abdabd7b44",
+      credential: "do1BGC+KPZA6pmdF"
     }
   ];
 
@@ -276,11 +256,5 @@
     }
   };
   </script>
-    
-    
-    <button id="logout">Logout</button>
-  </div>
-
-  <script src="script.js"></script>
 </body>
 </html>

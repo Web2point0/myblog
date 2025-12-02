@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Acid Demand Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem auto;
+      max-width: 400px;
+      text-align: center;
+    }
+    select, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 1rem;
+    }
+    #result {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h2>Acid Demand Calculator</h2>
+
+  <form id="acidForm">
+    <label for="drops">Acid Demand Drops:</label>
+    <select id="drops" required>
+      <option value="">Select</option>
+      <option value="1">1 drop</option>
+      <option value="2">2 drops</option>
+      <option value="3">3 drops</option>
+      <option value="4">4 drops</option>
+      <option value="5">5 drops</option>
+      <option value="6">6 drops</option>
+      <option value="7">7 drops</option>
+      <option value="8">8 drops</option>
+      <option value="9">9 drops</option>
+      <option value="10">10 drops</option>
+      <option value="11">11 drops</option>
+    </select>
+
+    <label for="gallons">Pool Volume (Gallons):</label>
+    <select id="gallons" required>
+      <option value="">Select</option>
+      <option value="400">400</option>
+      <option value="1000">1,000</option>
+      <option value="5000">5,000</option>
+      <option value="10000">10,000</option>
+      <option value="20000">20,000</option>
+      <option value="50000">50,000</option>
+      <option value="100000">100,000</option>
+    </select>
+
+    <button type="submit">Calculate</button>
+  </form>
+
+  <div id="result"></div>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <link rel="stylesheet" href="/style.css">
 <style>
 img,iframe {
@@ -30,17 +31,25 @@ border-radius: 25px;
 <script src="shrink.js"></script>
 </head>
   <body>
-    <nav>
-	     <ul>
-		    <li><a href="/">Home</a></li>
+  
+  <nav class="navbar">
+  <div class="nav-brand">MYYEAR.NET</div>
+  <button class="nav-toggle" id="navToggle">
+    ☰
+  </button>
+  <ul class="nav-menu" id="navMenu">
+                        <li><a href="/">Home</a></li>
 			<li><a href="/about/">About</a></li>
 			<li><a href="/links">Links</a></li>
 			<li><a href="/upload/">Uploader</a></li>
-			<li><a href="/1on1/">1on1</a></li>
-			<li><a href="/connect/">Connect</a></li>
-			
-		 </ul>
-	 </nav>
+			<li><a href="/PM/">Inbox</a></li>
+			<li><a href="/comment/">Comments</a></li>
+			<li><a href="/hiscore/" title="pass: OctoberFall">RS3/OSRS Banners</a></li>
+			<li><a href="/mobile/">1on1</a></li>
+			<li><a href="/meet/">Connect</a></li>
+  </ul>
+</nav>
+    
  <div class="invisible">
  <div class="listleft">
  <div id="myContainer">
@@ -58,6 +67,13 @@ border-radius: 25px;
 
 
 	 </footer>
-    
+    <script>
+  const navToggle = document.getElementById('navToggle');
+  const navMenu = document.getElementById('navMenu');
+
+  navToggle.addEventListener('click', () => {
+    navMenu.classList.toggle('active');
+  });
+</script>
   </body>
 </html>

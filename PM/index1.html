@@ -1,0 +1,261 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Simple PM App - Login</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    /* minimal styling */
+    body { font-family: system-ui, -apple-system, Roboto, "Segoe UI", Arial; display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; background:#f7fafc; }
+    .card { background:#fff; padding:20px; border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.08); width:360px; }
+    h1 { margin:0 0 12px 0; font-size:20px; }
+    label { display:block; margin-top:8px; font-size:13px; color:#333; }
+    input, textarea, select { width:100%; padding:8px 10px; margin-top:6px; border:1px solid #ddd; border-radius:6px; box-sizing:border-box; }
+    button { margin-top:12px; padding:10px 14px; border-radius:8px; border:0; background:#2563eb; color:#fff; cursor:pointer; }
+    .small { font-size:13px; color:#666; margin-top:8px; }
+    .tabs { display:flex; gap:6px; margin-top:12px; }
+    .tab { padding:8px 10px; border-radius:8px; background:#eef2ff; cursor:pointer; flex:1; text-align:center; }
+    .hidden { display:none; }
+    .message { margin-top:10px; padding:8px; border-radius:6px; background:#ecfccb; color:#154; }
+    .danger { background:#fee2e2; color:#7b0b0b; }
+    .row { display:flex; gap:8px; }
+    .row button { flex:1; }
+    .tiny { font-size:12px; color:#666; }
+  </style>
+</head>
+<body>
+  <div class="card" id="app">
+    <h1>PM Demo — Login / Create</h1>
+
+    <div id="main">
+      <label>Username</label>
+      <input id="username" placeholder="pick a username (3-32 chars)">
+
+      <div style="margin-top:8px;">
+        <label>Admin pass (required to create account)</label>
+        <input id="adminPass" placeholder="your admin pass (only for account creation)">
+      </div>
+
+      <div class="row">
+        <button id="createBtn">Create Account</button>
+        <button id="loginBtn">Login</button>
+      </div>
+
+      <div class="small">If you create an account you will be shown a secure identifier (your password). Save it — it won't be shown again.</div>
+
+      <div id="info" class="message hidden"></div>
+    </div>
+
+    <div id="dash" class="hidden">
+      <h1>Dashboard</h1>
+      <div class="tiny">Logged in as: <span id="u_disp"></span></div>
+
+      <div class="tabs">
+        <div class="tab" id="settingsTab">Settings</div>
+        <div class="tab" id="messageTab">Message</div>
+        <div class="tab" id="pmTab">Open My PM Page</div>
+      </div>
+
+      <div id="settingsPane" class="">
+        <h3>Account</h3>
+        <div class="tiny">Your ID (password) — keep this secret. This page will not store it beyond this session.</div>
+        <input id="userID" readonly>
+        <div style="display:flex; gap:8px; margin-top:8px">
+          <button id="deleteAccountBtn" class="dangerBtn">Delete account</button>
+          <button id="deleteAllBtn">Delete all messages</button>
+        </div>
+      </div>
+
+      <div id="messagePane" class="hidden">
+        <h3>Send Private Message</h3>
+        <label>To (username)</label>
+        <input id="toUser" placeholder="recipient username">
+        <label>Subject</label>
+        <input id="subject">
+        <label>Message</label>
+        <textarea id="body" rows="4"></textarea>
+        <button id="sendBtn">Send</button>
+        <div id="sendInfo" class="message hidden"></div>
+      </div>
+
+      <div id="pmLinkPane" class="hidden">
+        <h3>Your PM Page</h3>
+        <div class="tiny">Open this link to view your messages: </div>
+        <a id="pmLink" href="#" target="_blank">PM Page</a>
+      </div>
+
+      <div style="margin-top:12px;">
+        <button id="logoutBtn">Logout</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+const API_BASE = location.origin + 'https://myyear.net/pm/' // placeholder if you proxy; replace with your worker URL
+// For local testing or direct worker URL set below:
+const WORKER_URL = 'https://pm-worker.clip-devious-turf.workers.dev' // <-- change to your worker URL
+
+function show(el){ el.classList.remove('hidden') }
+function hide(el){ el.classList.add('hidden') }
+
+const usernameInput = document.getElementById('username')
+const adminPassInput = document.getElementById('adminPass')
+const createBtn = document.getElementById('createBtn')
+const loginBtn = document.getElementById('loginBtn')
+const info = document.getElementById('info')
+
+const dash = document.getElementById('dash')
+const main = document.getElementById('main')
+const u_disp = document.getElementById('u_disp')
+const userIDInput = document.getElementById('userID')
+const deleteAccountBtn = document.getElementById('deleteAccountBtn')
+const deleteAllBtn = document.getElementById('deleteAllBtn')
+const logoutBtn = document.getElementById('logoutBtn')
+
+const settingsTab = document.getElementById('settingsTab')
+const messageTab = document.getElementById('messageTab')
+const pmTab = document.getElementById('pmTab')
+
+const settingsPane = document.getElementById('settingsPane')
+const messagePane = document.getElementById('messagePane')
+const pmLinkPane = document.getElementById('pmLinkPane')
+
+const toUser = document.getElementById('toUser')
+const subject = document.getElementById('subject')
+const body = document.getElementById('body')
+const sendBtn = document.getElementById('sendBtn')
+const sendInfo = document.getElementById('sendInfo')
+const pmLink = document.getElementById('pmLink')
+
+let currentUser = null // { username, id }
+
+function showMessage(msg, danger=false) {
+  info.className = 'message' + (danger ? ' danger' : '')
+  info.textContent = msg
+  info.classList.remove('hidden')
+  setTimeout(()=> info.classList.add('hidden'), 8000)
+}
+
+function api(path, opts) {
+  const url = WORKER_URL + path
+  return fetch(url, opts).then(r=>r.json())
+}
+
+createBtn.addEventListener('click', async () => {
+  const username = usernameInput.value.trim().toLowerCase()
+  const adminPass = adminPassInput.value
+  if (!username) { showMessage('Enter username', true); return }
+  try {
+    const resp = await api('/createAccount', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({ username, adminPass })
+    })
+    if (!resp.ok) {
+      showMessage(resp.error || 'Failed', true)
+      return
+    }
+    // show ID to user and log them in
+    const id = resp.id
+    currentUser = { username: resp.username, id }
+    u_disp.textContent = currentUser.username
+    userIDInput.value = currentUser.id
+    show(dash); hide(main)
+    showMessage('Account created — SAVE your ID now. This is the only time you will see it.')
+    pmLink.href = WORKER_URL + '/pm.html?id=' + encodeURIComponent(currentUser.id)
+    pmLink.textContent = pmLink.href
+    show(pmLinkPane)
+  } catch (err) {
+    showMessage(err.message, true)
+  }
+})
+
+loginBtn.addEventListener('click', async () => {
+  const username = usernameInput.value.trim().toLowerCase()
+  const id = prompt('Enter your ID (password):')
+  if (!username || !id) { showMessage('Missing login fields', true); return }
+  try {
+    const resp = await api('/login', {
+      method:'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ username, id })
+    })
+    if (!resp.ok) { showMessage(resp.error || 'Login failed', true); return }
+    currentUser = { username: resp.username, id: id }
+    u_disp.textContent = currentUser.username
+    userIDInput.value = currentUser.id
+    show(dash); hide(main)
+    pmLink.href = window.location.origin + "/PM/PM.html?id=" + encodeURIComponent(currentUser.id);
+    pmLink.textContent = pmLink.href
+    show(pmLinkPane)
+  } catch (err) {
+    showMessage(err.message, true)
+  }
+})
+
+logoutBtn.addEventListener('click', ()=> {
+  currentUser = null
+  u_disp.textContent = ''
+  userIDInput.value = ''
+  hide(dash); show(main)
+})
+
+sendBtn.addEventListener('click', async ()=>{
+  if (!currentUser) { showMessage('You must login', true); return }
+  const to = toUser.value.trim().toLowerCase()
+  const subj = subject.value
+  const b = body.value
+  if (!to || !b) { showMessage('Specify recipient and message', true); return }
+  try {
+    const resp = await api('/sendPM', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({ fromID: currentUser.id, toUsername: to, subject: subj, body: b })
+    })
+    if (!resp.ok) { showMessage(resp.error || 'Send failed', true); return }
+    sendInfo.textContent = 'Sent to ' + resp.to
+    sendInfo.classList.remove('hidden')
+    setTimeout(()=> sendInfo.classList.add('hidden'), 4000)
+  } catch (err) {
+    showMessage(err.message, true)
+  }
+})
+
+deleteAllBtn.addEventListener('click', async ()=>{
+  if (!currentUser) return
+  if (!confirm('Delete ALL messages in your inbox? This cannot be undone.')) return
+  const resp = await api('/deleteAll', {
+    method:'POST',
+    headers:{ 'Content-Type':'application/json' },
+    body: JSON.stringify({ id: currentUser.id })
+  })
+  if (resp.ok) showMessage('Inbox cleared')
+  else showMessage(resp.error || 'Failed', true)
+})
+
+deleteAccountBtn.addEventListener('click', async ()=>{
+  if (!currentUser) return
+  if (!confirm('Delete your account and purge your messages? This cannot be undone.')) return
+  const resp = await api('/deleteAccount', {
+    method:'POST',
+    headers:{ 'Content-Type':'application/json' },
+    body: JSON.stringify({ username: currentUser.username, id: currentUser.id })
+  })
+  if (resp.ok) {
+    showMessage('Account deleted')
+    logoutBtn.click()
+  } else {
+    showMessage(resp.error || 'Failed', true)
+  }
+})
+
+// tabs
+settingsTab.onclick = ()=> { show(settingsPane); hide(messagePane); show(pmLinkPane) }
+messageTab.onclick = ()=> { hide(settingsPane); show(messagePane); hide(pmLinkPane) }
+pmTab.onclick = ()=> {
+  if (!currentUser) { showMessage('Login first', true); return }
+  window.open(pmLink.href, '_blank')
+}
+</script>
+</body>
+</html>

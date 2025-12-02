@@ -1,0 +1,209 @@
+---
+layout: page
+title: Comments
+permalink: /comment/
+---
+
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Comment System (workers.dev API)</title>
+<style>
+  body { font-family: Arial; margin: 20px; background: #f8f9fa; color: #222; }
+  .comment, .reply {
+    background: #fff; border: 1px solid #ccc; border-radius: 8px;
+    padding: 10px; margin-bottom: 10px; transition: opacity 0.4s, transform 0.4s;
+  }
+  .comment.adminMode, .reply.adminMode { border-color: #6ea8fe; cursor: pointer; }
+  .comment.fade-out, .reply.fade-out { opacity: 0; transform: translateY(-10px); }
+  .reply { margin-left: 20px; background: #eef6ff; }
+  .replyForm { margin-left: 20px; margin-top: 5px; }
+  input, textarea { padding: 6px; margin: 4px 0; width: 100%; }
+  button { padding: 6px 12px; margin-top: 4px; cursor: pointer; }
+  #setWidth { width: 249px; padding-left: 24px;}
+</style>
+</head>
+<body>
+
+<div id="setWidth">
+<h2>💬 Comments</h2>
+
+<form id="commentForm">
+  <input id="nameInput" placeholder="Your name" required />
+  <textarea id="commentInput" rows="3" placeholder="Write a comment..." required></textarea>
+  <button type="submit">Post Comment</button>
+</form>
+
+<div id="commentList"></div>
+
+<div id="adminPanel">
+  <h3>Admin Panel</h3>
+  <input type="password" id="adminPassword" placeholder="Enter admin password">
+  <button id="adminLogin">Login</button>
+  <button id="adminLogout" style="display:none;">Logout</button>
+</div>
+
+<script>
+/* ------------------------------------------------------
+   🌐 CONFIG: Point this to your .workers.dev API endpoint
+------------------------------------------------------ */
+const API = "https://comments.myyear.net"; // ← replace with your actual Worker URL
+
+// Store token in localStorage (used for admin actions)
+let adminToken = localStorage.getItem("adminToken") || null;
+
+// Fetch and render comments
+async function fetchComments() {
+  const res = await fetch(`${API}/comments`);
+  const comments = await res.json();
+  renderComments(comments);
+}
+
+// Render comments & replies
+function renderComments(comments) {
+  const list = document.getElementById("commentList");
+  list.innerHTML = "";
+
+  const parents = comments.filter(c => !c.parentId);
+  parents.sort((a,b)=>b.time - a.time);
+  parents.forEach(c => {
+    const div = createComment(c, comments);
+    list.appendChild(div);
+  });
+}
+
+function createComment(comment, all) {
+  const div = document.createElement("div");
+  const isOrphan = comment.parentId && !all.some(p => p.id === comment.parentId);
+  div.className = isOrphan ? "reply" : "comment";
+  div.dataset.id = comment.id;
+
+  div.innerHTML = `
+    ${isOrphan ? "<em>Parent deleted</em><br>" : ""}
+    <strong>${comment.name}</strong><br>
+    ${comment.text}<br>
+    <small>${new Date(comment.time || comment.timestamp).toLocaleString()}</small>
+    ${!isOrphan ? '<button class="replyBtn">Reply</button><div class="repliesContainer"></div>' : ''}
+  `;
+
+  // Attach replies
+  if(!isOrphan){
+    const repliesContainer = div.querySelector(".repliesContainer");
+    const replies = all.filter(r => r.parentId === comment.id);
+    replies.forEach(r => {
+      const replyDiv = document.createElement("div");
+      replyDiv.className = "reply";
+      replyDiv.dataset.id = r.id;
+      replyDiv.innerHTML = `
+        <strong>${r.name}</strong><br>
+        ${r.text}<br>
+        <small>${new Date(r.time || r.timestamp).toLocaleString()}</small>
+      `;
+      if(adminToken) setupDeleteGesture(replyDiv);
+      repliesContainer.appendChild(replyDiv);
+    });
+
+    const replyBtn = div.querySelector(".replyBtn");
+    replyBtn.onclick = () => {
+      if(div.querySelector(".replyForm")) return;
+      const form = document.createElement("div");
+      form.className = "replyForm";
+      form.innerHTML = `
+        <input placeholder="Your name" class="replyName" required>
+        <textarea placeholder="Write a reply..." rows="2" class="replyText" required></textarea>
+        <button>Post Reply</button>
+      `;
+      form.querySelector("button").onclick = async () => {
+        const name = form.querySelector(".replyName").value.trim();
+        const text = form.querySelector(".replyText").value.trim();
+        if(!name || !text) return;
+        await postComment(name, text, comment.id);
+        fetchComments();
+      };
+      div.appendChild(form);
+    };
+  }
+
+  if(adminToken) setupDeleteGesture(div);
+  return div;
+}
+
+// Post comment or reply
+async function postComment(name, text, parentId = null) {
+  await fetch(`${API}/comment`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, text, parentId })
+  });
+}
+
+// Admin-only delete
+function setupDeleteGesture(div) {
+  let clicks = 0;
+  div.onclick = async (e) => {
+    e.stopPropagation();
+    clicks++;
+    if(clicks >= 10) {
+      div.classList.add("fade-out");
+      await fetch(`https://comments.myyear.net/comment/delete`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Admin-Token": adminToken // send token header
+        },
+        body: JSON.stringify({ id: div.dataset.id })
+      });
+      setTimeout(() => div.remove(), 400);
+      clicks = 0;
+    }
+  };
+}
+
+// Submit top-level comment
+document.getElementById("commentForm").onsubmit = async (e) => {
+  e.preventDefault();
+  const name = document.getElementById("nameInput").value.trim();
+  const text = document.getElementById("commentInput").value.trim();
+  if(!name || !text) return;
+  await postComment(name, text);
+  e.target.reset();
+  fetchComments();
+};
+
+// Admin login
+document.getElementById("adminLogin").onclick = async () => {
+  const password = document.getElementById("adminPassword").value.trim();
+  const res = await fetch(`${API}/admin/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ password })
+  });
+  const data = await res.json();
+  if(data.success) {
+    adminToken = data.token || password; // fallback if token not returned
+    localStorage.setItem("adminToken", adminToken);
+    document.getElementById("adminLogin").style.display = "none";
+    document.getElementById("adminLogout").style.display = "inline-block";
+    alert("Logged in as admin!");
+    fetchComments();
+  } else {
+    alert("Invalid password.");
+  }
+};
+
+// Admin logout
+document.getElementById("adminLogout").onclick = () => {
+  localStorage.removeItem("adminToken");
+  adminToken = null;
+  document.getElementById("adminLogin").style.display = "inline-block";
+  document.getElementById("adminLogout").style.display = "none";
+  fetchComments();
+};
+
+fetchComments();
+</script>
+</div>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pool Trichlor Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #eef2f6;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    form {
+      background: #fff;
+      padding: 20px 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      width: 300px;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      width: 100%;
+      margin-top: 15px;
+      padding: 10px;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    #result {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h2>Trichlor (Tablets) Calculator</h2>
+  <p>The weight of a single chlorine tablet depends on its size, but a common 1-inch tablet weighs about 0.5 to 0.7 ounces, while a larger 3-inch tablet weighs approximately 8 ounces (0.5 pounds).</p>
+  <form id="calcForm">
+    <label for="volume">Pool Volume (Gallons):</label>
+    <input type="number" id="volume" placeholder="e.g. 15000" required>
+
+    <label for="ppm">Desired PPM Change:</label>
+    <input type="number" id="ppm" placeholder="e.g. 2" required>
+
+    <button type="submit">Calculate</button>
+  </form>
+
+  <div id="result"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>

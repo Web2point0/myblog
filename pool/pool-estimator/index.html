@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pool Service Estimate</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f9ff;
+      color: #222;
+      margin: 2em auto;
+      max-width: 650px;
+    }
+    h1 {
+      text-align: center;
+    }
+    form {
+      background: #fff;
+      padding: 1.5em;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-top: 1em;
+    }
+    select, input, textarea, button {
+      width: 100%;
+      padding: 0.5em;
+      margin-top: 0.3em;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+    }
+    button {
+      background: #0077cc;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #005fa3;
+    }
+    #results {
+      margin-top: 1.5em;
+      background: #fff;
+      padding: 1.2em;
+      border-radius: 8px;
+      box-shadow: 0 0 6px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <h1>Pool Service Estimate Generator</h1>
+  <form id="estimateForm">
+    <label for="pool_size">Pool Size (in gallons):</label>
+    <input type="number" id="pool_size" name="pool_size" placeholder="e.g. 12000" required />
+
+    <label for="customer_name">Customer Name:</label>
+    <input type="text" id="customer_name" name="customer_name" placeholder="Enter customer name" required>
+
+    <label for="customer_email">Customer Email:</label>
+    <input type="email" id="customer_email" name="customer_email" placeholder="customer@example.com" required />
+
+    <label for="selected_tier">Select Service:</label>
+    <select id="selected_tier" name="selected_tier" required>
+      <option value="A">Chemicals Only / Balance Only</option>
+      <option value="B">Brush + Balance</option>
+      <option value="C">Full Service (Brush + Vacuum + Balance + Cleaning)</option>
+    </select>
+
+    <label for="notes">Additional Notes:</label>
+    <textarea id="notes" name="notes" rows="4" placeholder="Enter any notes or special requests here..."></textarea>
+
+    <button type="submit">Generate Estimate</button>
+  </form>
+
+  <div id="results"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>

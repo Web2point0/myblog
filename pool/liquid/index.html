@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pool Volume & Chlorine Calculator</title>
+  <style>
+    body { font-family: Arial; max-width: 700px; margin: 40px auto; }
+    h1 { text-align: center; }
+    .section { border: 1px solid #ccc; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+    input, button { margin: 5px 0; padding: 8px; width: 100%; }
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    button { background: #0078d7; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    button:hover { background: #005fa3; }
+    #result { background: #eef; padding: 15px; border-radius: 10px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>Pool Volume & Chlorine Calculator</h1>
+
+  <form id="poolForm">
+    <div class="section">
+      <label><input type="checkbox" id="rectanglePool"> Rectangle Pool</label>
+      <div id="rectangleFields" style="display:none;">
+        <label>Length (ft):</label><input type="number" id="length">
+        <label>Width (ft):</label><input type="number" id="width">
+        <label>Shallow Depth (ft):</label><input type="number" id="shallowDepth">
+        <label>Deep Depth (ft):</label><input type="number" id="deepDepth">
+      </div>
+    </div>
+
+    <div class="section">
+      <label><input type="checkbox" id="circlePool"> Circular (Spa) Pool</label>
+      <div id="circleFields" style="display:none;">
+        <label>Diameter (ft):</label><input type="number" id="diameter">
+        <label>Shallow Depth (ft):</label><input type="number" id="circleShallow">
+        <label>Deep Depth (ft):</label><input type="number" id="circleDeep">
+      </div>
+    </div>
+
+    <div class="section">
+      <label><input type="checkbox" id="knownVolume"> I already know my total volume</label>
+      <div id="knownVolumeFields" style="display:none;">
+        <label>Total Volume (gallons):</label><input type="number" id="knownGallons">
+      </div>
+    </div>
+
+    <div class="section">
+      <label>Desired Chlorine Change (ppm):</label>
+      <input type="number" id="desiredPPM" required>
+    </div>
+
+    <button type="submit">Calculate</button>
+  </form>
+
+  <div id="result"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>

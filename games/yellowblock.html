@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>Doodle × Icy Towers — Mobile Edition</title>
+  <style>
+    :root{--bg:#0d1b2a;--platform:#8bd3dd;--player:#ffd166;--accent:#06d6a0}
+    html,body{height:100%;margin-top:13px;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial;touch-action:none;-webkit-user-select:none;user-select:none;overflow:hidden}
+    body{display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#071112,#0a2340)}
+    #game{width:420px;height:720px;box-shadow:0 10px 30px rgba(0,0,0,.6);background:linear-gradient(180deg,#071a2a 0%, #051826 100%);position:relative;overflow:hidden;border-radius:12px}
+    canvas{display:block;width:100%;height:100%}
+    #c {margin: 25px;  }
+    #ui{position:absolute;left:8px;top:8px;color:#e6f2ff;font-weight:600;text-shadow:0 1px 0 rgba(0,0,0,.6)}
+    #msg{position:absolute;left:0;right:0;top:40%;text-align:center;color:#fff;font-size:18px}
+    #controls{position:absolute;right:8px;top:8px;color:#cfeef1;text-align:right}
+    button{background:var(--accent);border:none;padding:8px 10px;border-radius:8px;color:#021;cursor:pointer}
+    #touch-controls{position:absolute;bottom:20px;left:0;right:0;display:flex;justify-content:space-between;padding:0 40px;opacity:0.7}
+    .touch-btn{width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.3);}
+    @media(max-width:480px){#game{width:100vw;height:100vh;border-radius:0}}
+  </style>
+</head>
+<body>
+  <div id="game">
+    <canvas id="c"></canvas>
+    <div id="ui">
+      <div>Score: <span id="score">0</span></div>
+      <div>Lives: <span id="lives">3</span></div>
+      <div style="font-size:12px">Tilt or Tap to Move / Jump</div>
+    </div>
+    <div id="controls">
+      <button id="restart" style="display:none">Restart</button>
+    </div>
+    <div id="msg"></div>
+    <div id="touch-controls">
+      <div id="btn-left" class="touch-btn"></div>
+      <div id="btn-right" class="touch-btn"></div>
+    </div>
+  </div>
+<script>
+(() => {
+  const canvas=document.getElementById('c');
+  const G=canvas.getContext('2d');
+  const scoreEl=document.getElementById('score');
+  const livesEl=document.getElementById('lives');
+  const msgEl=document.getElementById('msg');
+  const restartBtn=document.getElementById('restart');
+  const btnLeft=document.getElementById('btn-left');
+  const btnRight=document.getElementById('btn-right');
+
+  let W,H,scale;
+  function resize(){const rect=canvas.getBoundingClientRect();W=canvas.width=rect.width*devicePixelRatio;H=canvas.height=rect.height*devicePixelRatio;scale=devicePixelRatio;}
+  window.addEventListener('resize',resize);
+
+  const gravity=0.45,friction=0.998;
+  let platforms=[],powerups=[],enemies=[];
+  let player,keys={},score=0,lives=3,gameOver=false,tiltX=0;
+
+  function rand(a,b){return Math.random()*(b-a)+a}
+
+  class Platform{constructor(x,y,w=90,type='static'){this.x=x;this.y=y;this.w=w;this.h=12;this.type=type;this.vx=type==='moving'?rand(0.6,1.2)*(Math.random()<.5?-1:1):0;this.breaking=false;this.life=1;}
+    update(dt){if(this.type==='moving'){this.x+=this.vx*dt;if(this.x<10||this.x+this.w>W-10)this.vx*=-1;}if(this.type==='break'&&this.breaking){this.life-=0.02*dt;if(this.life<=0)this.dead=true;}}
+    draw(g){g.save();g.scale(1/scale,1/scale);let c={static:'#8bd3dd',moving:'#a3d2ff',ice:'#c9f0ff',break:'#ff7070'};g.fillStyle=c[this.type]||'#8bd3dd';if(this.breaking)g.fillStyle='#ffb3b3';g.beginPath();g.roundRect(this.x,this.y,this.w,this.h,6);g.fill();g.restore();}}
+
+  class Powerup{constructor(x,y,type){this.x=x;this.y=y;this.type=type;this.w=24;this.h=24;this.active=true;}
+    draw(g){g.save();g.scale(1/scale,1/scale);g.fillStyle=this.type==='jetpack'?'#ffdd00':'#00e5ff';g.beginPath();g.arc(this.x+12,this.y+12,12,0,Math.PI*2);g.fill();g.restore();}}
+
+  class Enemy{constructor(x,y){this.x=x;this.y=y;this.w=36;this.h=36;this.vx=rand(-1,1);}update(dt){this.x+=this.vx*dt;if(this.x<0||this.x+this.w>W/scale)this.vx*=-1;}
+    draw(g){g.save();g.scale(1/scale,1/scale);g.fillStyle='#ff4444';g.fillRect(this.x,this.y,this.w,this.h);g.restore();}}
+
+  class Player{constructor(x,y){this.x=x;this.y=y;this.w=36;this.h=48;this.vx=0;this.vy=0;this.jetpack=false;this.springs=false;this.jetTime=0;this.springTime=0;this.invincible=false;}
+    update(dt){let move=(keys.left?-1:0)+(keys.right?1:0)+tiltX*1.5;this.vx+=move*0.6*dt;this.vx*=friction;this.x+=this.vx*dt;if(this.x<-this.w)this.x=W/scale+this.w;if(this.x>W/scale+this.w)this.x=-this.w;
+      if(this.jetpack){this.vy=-8;this.jetTime-=dt;if(this.jetTime<=0)this.jetpack=false;}else this.vy+=gravity*dt;this.y+=this.vy*dt;if(this.springs){this.springTime-=dt;if(this.springTime<=0)this.springs=false;}}
+    draw(g){g.save();g.scale(1/scale,1/scale);g.fillStyle=this.invincible?'#00ffcc':'#ffd166';g.roundRect(this.x,this.y,this.w,this.h,8);g.fill();if(this.jetpack){g.fillStyle='#ffdd00';g.fillRect(this.x+8,this.y+this.h-6,20,6);}if(this.springs){g.fillStyle='#00e5ff';g.fillRect(this.x+6,this.y+this.h,24,6);}g.restore();}
+    jump(s){this.vy=s||-11;}}
+
+  function init(){resize();score=0;lives=3;gameOver=false;platforms=[];powerups=[];enemies=[];msgEl.textContent='';restartBtn.style.display='none';const baseY=H/scale-80;for(let i=0;i<10;i++){const x=rand(20,W/scale-120),y=baseY-i*100;platforms.push(new Platform(x,y,rand(70,120),'static'));}player=new Player(W/scale/2,baseY-140);player.jump();loop(0);}
+
+  function handleCollisions(dt){for(let p of platforms){if(p.dead)continue;if(player.vy>0&&player.x+player.w>p.x&&player.x<p.x+p.w&&player.y+player.h>p.y&&player.y+player.h<p.y+p.h+20){if(p.type==='break'){p.breaking=true;player.jump(-12);}else{let j=-11;if(player.springs)j=-18;player.jump(j);}}}
+    for(let pow of powerups){if(pow.active&&player.x+player.w>pow.x&&player.x<pow.x+pow.w&&player.y+player.h>pow.y&&player.y<pow.y+pow.h){pow.active=false;if(pow.type==='jetpack'){player.jetpack=true;player.jetTime=180;}if(pow.type==='spring'){player.springs=true;player.springTime=240;}}}
+    for(let e of enemies){e.update(dt);if(player.vy>0&&player.x+player.w>e.x&&player.x<e.x+e.w&&player.y+player.h>e.y&&player.y+player.h<e.y+e.h){player.jump(-12);e.dead=true;lives=Math.min(3,lives+1);}else if(!player.invincible&&player.x+player.w>e.x&&player.x<e.x+e.w&&player.y<e.y+e.h&&player.y+player.h>e.y){lives--;player.invincible=true;setTimeout(()=>player.invincible=false,1000);if(lives<=0)endGame();}}}
+
+  function spawn(){while(platforms.filter(p=>!p.dead).length<14){const highest=Math.min(...platforms.map(p=>p.y));const y=highest-rand(70,130);const x=rand(10,W/scale-130);platforms.push(new Platform(x,y,rand(70,120),'static'));if(Math.random()>0.94)powerups.push(new Powerup(x+rand(0,60),y-30,Math.random()>0.5?'jetpack':'spring'));if(Math.random()>0.97)enemies.push(new Enemy(x+rand(0,60),y-40));}}
+
+  let last=0;function loop(t){const dt=Math.min(2,(t-last)/16);last=t;update(dt);draw(G);if(!gameOver)requestAnimationFrame(loop);}
+  function update(dt){player.update(dt);for(let p of platforms)p.update(dt);handleCollisions(dt);const top=H/scale*0.4;if(player.y<top){const dy=top-player.y;player.y=top;for(let arr of [platforms,powerups,enemies])for(let o of arr)o.y+=dy;score+=Math.floor(dy*0.2);}platforms=platforms.filter(p=>!p.dead&&p.y<H/scale+200);powerups=powerups.filter(p=>p.active&&p.y<H/scale+200);enemies=enemies.filter(e=>!e.dead&&e.y<H/scale+200);spawn();scoreEl.textContent=score|0;livesEl.textContent=lives;if(player.y>H/scale+80)endGame();}
+
+  function draw(g){g.clearRect(0,0,W,H);let grad=g.createLinearGradient(0,0,0,H);grad.addColorStop(0,'#061926');grad.addColorStop(1,'#02202a');g.fillStyle=grad;g.fillRect(0,0,W,H);for(let p of platforms)p.draw(g);for(let pow of powerups)pow.draw(g);for(let e of enemies)e.draw(g);player.draw(g);}
+
+  function endGame(){gameOver=true;msgEl.innerHTML=`Game Over<br><small>Score: ${score|0}</small>`;restartBtn.style.display='inline-block';}
+
+  // Desktop keys
+  window.addEventListener('keydown',e=>{if(['ArrowLeft','a','A'].includes(e.key))keys.left=true;if(['ArrowRight','d','D'].includes(e.key))keys.right=true;});
+  window.addEventListener('keyup',e=>{if(['ArrowLeft','a','A'].includes(e.key))keys.left=false;if(['ArrowRight','d','D'].includes(e.key))keys.right=false;});
+
+  // Touch buttons
+  btnLeft.addEventListener('touchstart',()=>keys.left=true);btnLeft.addEventListener('touchend',()=>keys.left=false);
+  btnRight.addEventListener('touchstart',()=>keys.right=true);btnRight.addEventListener('touchend',()=>keys.right=false);
+  canvas.addEventListener('pointerdown',()=>{if(gameOver)return;player.jump(-10);});
+  restartBtn.addEventListener('click',()=>init());
+
+  // Tilt support
+  if(window.DeviceOrientationEvent){window.addEventListener('deviceorientation',e=>{if(e.gamma!==null){tiltX=Math.max(-1,Math.min(1,e.gamma/30));}});}
+
+  CanvasRenderingContext2D.prototype.roundRect=CanvasRenderingContext2D.prototype.roundRect||function(x,y,w,h,r){if(typeof r==='number')r={tl:r,tr:r,br:r,bl:r};else r=Object.assign({tl:0,tr:0,br:0,bl:0},r);this.beginPath();this.moveTo(x+r.tl,y);this.lineTo(x+w-r.tr,y);this.quadraticCurveTo(x+w,y,x+w,y+r.tr);this.lineTo(x+w,y+h-r.br);this.quadraticCurveTo(x+w,y+h,x+w-r.br,y+h);this.lineTo(x+r.bl,y+h);this.quadraticCurveTo(x,y+h,x,y+h-r.bl);this.lineTo(x,y+r.tl);this.quadraticCurveTo(x,y,x+r.tl,y);this.closePath();};
+  init();
+})();
+</script>
+</body>
+</html>

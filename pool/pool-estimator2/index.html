@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pool Monthly Service Estimator</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- jsPDF CDN for PDF export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial; margin: 20px; }
+    .container{ max-width:1000px; margin:0 auto;}
+    label{ display:block; margin-top:10px; font-weight:600;}
+    .row { display:flex; gap:12px; flex-wrap:wrap; }
+    .col { flex:1 1 220px; min-width:200px;}
+    select,input[type="number"],input[type="text"]{ width:100%; padding:8px; margin-top:6px; }
+    button{ margin-top:12px; padding:10px 16px; cursor:pointer; }
+    table { width:100%; border-collapse:collapse; margin-top:18px;}
+    th,td{ border:1px solid #ddd; padding:8px; text-align:left;}
+    th{ background:#f5f5f5;}
+    .summary{ margin-top:16px; padding:10px; background:#f9f9f9; border-radius:6px; }
+    .muted{ color:#666; font-size:0.9rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Pool Monthly Service Estimator</h1>
+    <p class="muted">Fill the form below and click <strong>Estimate</strong>. You'll get a cost breakdown for every service tier and a downloadable PDF.</p>
+
+    <form id="estimateForm">
+      <div class="row">
+        <div class="col">
+          <label>Does the pool have multiple features (waterfalls, etc.)?</label>
+          <select name="hasFeatures" required>
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select>
+          <label>How many features? (if "Yes")</label>
+          <input type="number" name="featureCount" min="0" value="0">
+        </div>
+
+        <div class="col">
+          <label>Is the spa attached to the pool?</label>
+          <select name="spaAttached" required>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+
+          <label>Does the pool have a screen enclosure?</label>
+          <select name="screenEnclosed" required>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+
+        <div class="col">
+          <label>Pool Size (gallons)</label>
+          <select name="poolSize" required>
+            <option value="small">&lt; 12,000 (Small)</option>
+            <option value="medium">12,000 - 20,000 (Medium)</option>
+            <option value="large">20,000 - 30,000 (Large)</option>
+            <option value="super">30,000 - 100,000 (Super Large)</option>
+          </select>
+
+          <label>Water Type</label>
+          <select name="waterType" required>
+            <option value="chlorine">Chlorine</option>
+            <option value="salt">Salt</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <label>Pool Clarity</label>
+          <select name="clarity" required>
+            <option value="clear">Clear</option>
+            <option value="cloudy">Cloudy</option>
+          </select>
+
+          <label>Filter Type</label>
+          <select name="filterType" required>
+            <option value="de">D.E. Filter</option>
+            <option value="sand">Sand Filter</option>
+            <option value="single">Single Paper Cartridge</option>
+            <option value="quad">Quad Cartridge</option>
+          </select>
+        </div>
+
+        <div class="col">
+          <label>Service Type (we will show all but you can select a preferred one)</label>
+          <select name="serviceType" required>
+            <option value="chemical">Chemical/Balancing only</option>
+            <option value="brush_weekly_chems">Brush weekly / chems</option>
+            <option value="brush_weekly_vac_endmonth_chems">Brush weekly / end of month vac / chems</option>
+            <option value="brush_weekly_biweekly_vac_chems">Brush weekly, bi-weekly vac / chems</option>
+            <option value="brush_weekly_weekly_vac_chems">Brush weekly, weekly vac / chems</option>
+          </select>
+
+          <label>Hourly Wage (your wage, $/hr)</label>
+          <input type="number" name="hourlyWage" value="25" min="0">
+        </div>
+
+        <div class="col">
+          <label>Optional: Notes / Address</label>
+          <input type="text" name="notes" placeholder="Address or notes (optional)">
+        </div>
+      </div>
+
+      <div style="margin-top:12px;">
+        <button type="submit">Estimate</button>
+        <button type="button" id="downloadPdf" disabled>Download PDF</button>
+      </div>
+    </form>
+
+    <div id="resultsArea"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

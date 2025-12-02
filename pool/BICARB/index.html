@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alkalinity Increase Calculator</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; background: #f2f6fa; padding: 20px; border-radius: 10px; }
+    h1 { color: #003366; text-align: center; }
+    label { display: block; margin-top: 15px; font-weight: bold; }
+    input, select, button { width: 100%; padding: 10px; margin-top: 5px; border-radius: 6px; border: 1px solid #ccc; }
+    button { background: #003366; color: #fff; cursor: pointer; }
+    button:hover { background: #0055a4; }
+    .result { background: #e8f5e9; margin-top: 20px; padding: 15px; border-radius: 6px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Alkalinity Adjustment Calculator</h1>
+  <form id="alkalinityForm">
+    <label for="volume">Pool Volume (gallons):</label>
+    <input type="number" id="volume" name="volume" placeholder="Enter pool gallons" required>
+
+    <label for="ppm">Desired Increase (ppm):</label>
+    <select id="ppm" name="ppm" required>
+      <option value="">Select...</option>
+      <option value="10">10 ppm</option>
+      <option value="20">20 ppm</option>
+      <option value="30">30 ppm</option>
+      <option value="40">40 ppm</option>
+      <option value="50">50 ppm</option>
+      <option value="60">60 ppm</option>
+      <option value="70">70 ppm</option>
+      <option value="80">80 ppm</option>
+      <option value="90">90 ppm</option>
+    </select>
+
+    <button type="submit">Calculate</button>
+  </form>
+
+  <div class="result" id="result"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>

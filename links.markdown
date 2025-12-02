@@ -52,7 +52,17 @@ permalink: /links/
 <p><a href="/playlist">My personal music playlist</a></p>
 
 <h2>Meet new ppl</h2>
-<p><a href="/connect">Connect over the internet with webcam</a></p>
+<p><a href="/meet">Connect over the internet with webcam</a></p>
 
 <h2>One on one video discussion</h2>
-<p><a href="/1on1">Video chat with another peer using the ID</a></p>
+<p><a href="/1on1">Video chat with another peer using the ID (Desktop)</a></p>
+<p><a href="/mobile">Video chat (Mobile Friendly)</a></p>
+
+<h2>Games</h2>
+<p><a href="/games/yellowblock.html">Play yellowblock</a></p>
+
+<h2>Comments</h2>
+<p><a href="/comment">Comment here on the website!</a></p>
+
+<h2>Comments</h2>
+<p><a href="/PM/" title="I say with a asterisk b/c it still uses a public url and only as private if you keep your inbox url a secrect or roate out your Inbox periodically">Private* Message between Users</a></p>

@@ -88,29 +88,88 @@ width: 250px;
 		   border-bottom: 1px solid #000;
 		   margin-left: 40%;
 }
-nav {
-    background-color: #C1CD2E;
-	border-bottom: 1px solid #000;
-    text-align: center;
-	padding: 10px;
-}
-nav ul {
-     padding: 10px;
-	 }
-nav li {
-     display: inline;
-	 list-style-type: none;
-}
-nav a {
-     padding: 25px;
-     text-decoration: none;
-}
-nav a:hover {
-          border-bottom: 2px solid cyan;
-          background-color: orange;
-		  padding: 25px;
 
+/* Base Navbar */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #0b2239;
+  color: white;
+  padding: 0.75rem 1.25rem;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
 }
+
+/* Brand name */
+.nav-brand {
+  font-size: 1.25rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+/* Menu items */
+.nav-menu {
+  list-style: none;
+  display: flex;
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+  transition: all 0.3s ease;
+}
+
+.nav-menu li a {
+  text-decoration: none;
+  color: white;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.nav-menu li a:hover {
+  color: #4dc0ff;
+}
+
+/* Hamburger toggle (hidden on large screens) */
+.nav-toggle {
+  display: none;
+  font-size: 1.75rem;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+/* --- Responsive Styles --- */
+@media (max-width: 768px) {
+  .nav-toggle {
+    display: block;
+  }
+
+  .nav-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: #0b2239;
+    flex-direction: column;
+    align-items: center;
+    max-height: 0;
+    overflow: hidden;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .nav-menu.active {
+    max-height: 300px; /* Adjust as needed */
+    padding: 1rem 0;
+  }
+
+  .nav-menu li {
+    padding: 0.75rem 0;
+  }
+}
+
 .intro {
         padding: 5px;
 }
@@ -146,8 +205,8 @@ p.listleft {
 }
 footer  {
       clear: both;
-      background-color: #C1CD2E;
-	  color: black;
+      background-color: #0b2239;
+	  color: white;
 	  position: relative;
 	  bottom: 0;
 	  text-align: center;
