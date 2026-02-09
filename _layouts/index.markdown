@@ -83,7 +83,7 @@ layout: default
         }
     </script>
 <iframe src="/playlist" width="auto" height="auto" style="border:none; overflow:hidden;"></iframe><br />
-<iframe src="https://myyear.net/hiscore/osrs/beta1/your-template.html?user=fun%20i%20orb&color=%23c875ff&font=Verdana%2C%20sans-serif&bgUrl=https%3A%2F%2Frs3-banner-worker.clip-devious-turf.workers.dev%2Fbg%2F49327317-4929-420d-af0c-6cbe94798f89" 
+<iframe src="https://myyear.net/hiscore/osrs/beta1/your-template.html?user=fun%20i%20orb&color=%23c875ff&font=Verdana%2C%20sans-serif&bgUrl=https%3A%2F%2Frs3-banner-worker.myyear.net%2Fbg%2F49327317-4929-420d-af0c-6cbe94798f89" 
   width="335" 
   height="249" 
   style="border:none;border-radius:8px;overflow:hidden;" 
