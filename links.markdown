@@ -64,5 +64,5 @@ permalink: /links/
 <h2>Comments</h2>
 <p><a href="/comment">Comment here on the website!</a></p>
 
-<h2>Comments</h2>
+<h2>Private Message</h2>
 <p><a href="/PM/" title="I say with a asterisk b/c it still uses a public url and only as private if you keep your inbox url a secrect or roate out your Inbox periodically">Private* Message between Users</a></p>
