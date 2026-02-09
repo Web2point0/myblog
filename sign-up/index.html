@@ -419,5 +419,22 @@
     observer.observe(status, { childList: true, characterData: true, subtree: true });
   </script>
   
+  <script>
+  function sendHeight() {
+    const height = Math.max(
+      document.body.scrollHeight,
+      document.documentElement.scrollHeight
+    );
+    window.parent.postMessage({iframeHeight: height}, '*');
+  }
+  
+  window.addEventListener('load', sendHeight);
+  window.addEventListener('resize', sendHeight);
+  
+  // Check for dynamic content changes
+  const observer = new MutationObserver(sendHeight);
+  observer.observe(document.body, { childList: true, subtree: true });
+</script>
+  
 </body>
 </html>
