@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Invoice Generator</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Create Invoice</h1>
+
+  <form id="invoice-form">
+    <h3>Customer Info</h3>
+    <input type="text" id="name" placeholder="Customer Name" required />
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="tel" id="phone" placeholder="Phone" />
+
+    <h3>Logo</h3>
+    <input type="file" id="logo" accept="image/*" />
+
+    <h3>Products</h3>
+    <div id="products"></div>
+    <button type="button" id="add-product">+</button>
+
+    <h3>Notes</h3>
+    <textarea id="notes" rows="4"></textarea>
+
+    <h3>Total: $<span id="total">0.00</span></h3>
+
+    <button type="submit">Generate Invoice PDF</button>
+  </form>
+
+  <script src="script.js"></script>
+</body>
+</html>

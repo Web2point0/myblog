@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Kidney Pool Gallon Calculator</title>
+<style>
+body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; }
+label { display: block; margin-top: 10px; }
+input, button { width: 100%; padding: 8px; margin-top: 4px; }
+#result { margin-top: 20px; font-weight: bold; }
+</style>
+</head>
+<body>
+
+
+<h2>Kidney Pool Gallon Calculator</h2>
+
+
+<form id="calcForm">
+<label>A (Kidney Length 1 - feet)
+<input type="number" step="0.01" name="a" required />
+</label>
+
+
+<label>B (Kidney Length 2 - feet)
+<input type="number" step="0.01" name="b" required />
+</label>
+
+
+<label>L (Overall Length - feet)
+<input type="number" step="0.01" name="l" required />
+</label>
+
+
+<label>Shallow Depth (feet)
+<input type="number" step="0.01" name="shallow" required />
+</label>
+
+
+<label>Deep Depth (feet)
+<input type="number" step="0.01" name="deep" required />
+</label>
+
+
+<button type="submit">Calculate Gallons</button>
+</form>
+
+
+<div id="result"></div>
+
+
+<script>
+const form = document.getElementById('calcForm');
+const resultDiv = document.getElementById('result');
+
+
+form.addEventListener('submit', async (e) => {
+e.preventDefault();
+
+
+const data = Object.fromEntries(new FormData(form));
+
+
+const response = await fetch('https://kidney-pool-calculator.clip-devious-turf.workers.dev', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify(data)
+});
+
+
+const json = await response.json();
+
+
+if (json.error) {
+resultDiv.textContent = `Error: ${json.error}`;
+} else {
+resultDiv.textContent = `Estimated Gallons: ${json.gallons.toLocaleString()}`;
+}
+});
+</script>
+
+
+</body>
+</html>

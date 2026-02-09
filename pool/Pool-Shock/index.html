@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Breakpoint Chlorination Calculator</title>
+</head>
+<body>
+  <h1>Breakpoint Chlorination Calculator</h1>
+
+  <form id="calcForm">
+    <label>
+      Volume (gallons):
+      <input type="number" id="gallons" required step="any">
+    </label>
+    <br><br>
+
+    <label>
+      Breakpoint Chlorination (ppm):
+      <input type="number" id="ppm" required step="any">
+    </label>
+    <br><br>
+
+    <button type="submit">Calculate</button>
+  </form>
+
+  <h2>Result</h2>
+  <pre id="result"></pre>
+
+  <script src="script.js"></script>
+</body>
+</html>

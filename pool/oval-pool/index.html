@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Oval Pool Gallon Calculator</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 500px; margin: 40px auto; }
+    label { display: block; margin-top: 12px; }
+    input { width: 100%; padding: 8px; }
+    button { margin-top: 16px; padding: 10px; width: 100%; }
+    #result { margin-top: 20px; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<h2>Oval Pool Gallon Calculator</h2>
+
+<form id="poolForm">
+  <label>A (Width to center, feet)
+    <input type="number" step="0.01" required id="a" />
+  </label>
+
+  <label>B (Length to point, feet)
+    <input type="number" step="0.01" required id="b" />
+  </label>
+
+  <label>Shallow Depth (feet)
+    <input type="number" step="0.01" required id="shallow" />
+  </label>
+
+  <label>Deep Depth (feet)
+    <input type="number" step="0.01" required id="deep" />
+  </label>
+
+  <button type="submit">Calculate Gallons</button>
+</form>
+
+<div id="result"></div>
+
+<script>
+const form = document.getElementById("poolForm");
+const resultDiv = document.getElementById("result");
+
+form.addEventListener("submit", async function (e) {
+  e.preventDefault();
+
+  const payload = {
+    a: Number(document.getElementById("a").value),
+    b: Number(document.getElementById("b").value),
+    shallowDepth: Number(document.getElementById("shallow").value),
+    deepDepth: Number(document.getElementById("deep").value)
+  };
+
+  try {
+    const response = await fetch("https://oval-pool-gallon-calculator.clip-devious-turf.workers.dev", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json();
+    resultDiv.textContent =
+      "Total Gallons: " + Number(data.gallons).toLocaleString();
+  } catch (err) {
+    console.error(err);
+    resultDiv.textContent = "Error calculating gallons.";
+  }
+});
+</script>
+
+
+
+
+</body>
+</html>
+', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  });
+
+  const data = await response.json();
+  resultDiv.textContent = `Total Gallons: ${data.gallons.toLocaleString()}`;
+});
+</script>
+
+</body>
+</html>

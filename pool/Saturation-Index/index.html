@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Saturation Index Calculator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<body>
+  <h1>Saturation Index Calculator</h1>
+  <b> If CYA levels are over 40. Divide the cya level by 3 and subtract it from the total alkalinity level and that is your new alkalinity to use with this SI Index calculator. </b>
+
+  <form id="si-form">
+    <label>
+      pH:
+      <input type="number" step="0.01" id="ph" required />
+    </label><br /><br />
+
+    <label>
+      Temperature (°F):
+      <input type="number" id="temperature" required />
+    </label><br /><br />
+
+    <label>
+      Calcium Hardness (ppm):
+      <input type="number" id="calcium" required />
+    </label><br /><br />
+
+    <label>
+      Alkalinity (ppm):
+      <input type="number" id="alkalinity" required />
+    </label><br /><br />
+
+    <label>
+      TDS (ppm):
+      <input type="number" id="tds" required />
+    </label><br /><br />
+
+    <button type="submit">Calculate</button>
+  </form>
+
+  <h2 id="result"></h2>
+
+  <script src="script.js"></script>
+</body>
+</html>

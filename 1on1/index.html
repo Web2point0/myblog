@@ -7,6 +7,7 @@
     video { width: 45%; border-radius: 10px; margin: 10px; }
     #peer-id { margin: 10px; font-weight: bold; }
     input, button { padding: 8px; margin: 5px; }
+    #red { color: red; }
   </style>
   <link rel="stylesheet" href="">
 </head>
@@ -16,6 +17,14 @@
   <input id="remoteId" placeholder="Enter partner ID" />
   <button id="connectBtn">Connect</button>
   <br>
+  
+  <div id="red">
+  <p>This is a free limited bandwithed webRTC relay using STUN ICE Servers, utilizing the metered turn servers and the community STUN servers at 0.peerjs.com.</p>
+  <p>Be generous with your time as this is not meant for long-term communication.</p>
+  </div>
+  <p>How to use: Have both participants visit: https://myyear.net/1on1 for use with a DESKTOP otherwise proceed to this <a href="https://myyear.net/mobile/">link for mobile video chat.</a> Have either you or the other user copy the Peer ID eg)Z0101234-X4120-1A02-Z123-0012301X0123. Paste that into the PeerID field and click Connect. It will establish a secure tunnel between your webcam and the other webcam if both participants are currently active on the browser url link otherwise it will timeout and you need to reConnect again.  </p>
+  
+  
   <video id="myVideo" autoplay muted></video>
   <video id="remoteVideo" autoplay></video>
 

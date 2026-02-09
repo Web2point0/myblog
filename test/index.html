@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login / Dashboard</title>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: sans-serif; max-width: 700px; margin: auto; }
+    input, textarea, select { width: 100%; margin: 6px 0; padding: 6px; }
+    button { padding: 6px 12px; margin-top: 6px; }
+    hr { margin: 20px 0; }
+    #admin { border-top: 1px solid #ccc; margin-top: 20px; }
+  </style>
+</head>
+<body>
+
+<div id="login">
+  <h2>Login / Signup</h2>
+  <input id="u" placeholder="Username">
+  <input id="p" type="password" placeholder="Password">
+  <input id="i" placeholder="Invite Code (new users)">
+  <button onclick="login()">Enter</button>
+  <p id="msg"></p>
+</div>
+
+<div id="dash" style="display:none">
+  <h2>Dashboard</h2>
+  <p>Welcome <b id="user"></b></p>
+  <button onclick="logout()">Logout</button>
+
+  <div id="admin" style="display:none">
+    <h3>Admin</h3>
+    <button onclick="makeInvite()">Generate Invite</button>
+    <ul id="invites"></ul>
+  </div>
+
+  <hr>
+
+  <h3>Create Post</h3>
+  <input id="title" placeholder="Title">
+  <textarea id="body" rows="5"></textarea>
+  <select id="cat"></select>
+  <button onclick="createPost()">Post</button>
+
+  <hr>
+
+  <h3>Posts</h3>
+  <div id="posts"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

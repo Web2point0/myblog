@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --pool-deep: #0369a1;
+      --pool-medium: #0ea5e9;
+      --pool-light: #7dd3fc;
+      --pool-foam: #e0f2fe;
+      --pool-surface: #f0f9ff;
+      --coral: #f97316;
+      --sand: #fef3c7;
+      --shadow: rgba(3, 105, 161, 0.15);
+      --text-dark: #0c4a6e;
+      --text-medium: #075985;
+      --success: #10b981;
+      --warning: #f59e0b;
+    }
+
+    body {
+      font-family: 'Work Sans', -apple-system, sans-serif;
+      background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: var(--text-dark);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(125, 211, 252, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(224, 242, 254, 0.4) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 24px;
+      box-shadow: 
+        0 10px 40px var(--shadow),
+        0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+      animation: slideUp 0.5s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 28px;
+      color: var(--pool-deep);
+      margin-bottom: 24px;
+      letter-spacing: -0.5px;
+      text-align: center;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, var(--pool-deep), var(--pool-medium));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    h3 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 20px;
+      color: var(--pool-deep);
+      margin-bottom: 16px;
+      letter-spacing: -0.3px;
+    }
+
+    /* Login Section */
+    .login-section {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 24px;
+      padding-bottom: 24px;
+      border-bottom: 2px solid var(--pool-foam);
+    }
+
+    .tabs button {
+      flex: 1 1 calc(33.333% - 6px);
+      min-width: 90px;
+      padding: 12px 16px;
+      background: var(--pool-surface);
+      border: 2px solid var(--pool-light);
+      border-radius: 12px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--pool-medium);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .tabs button:hover {
+      background: var(--pool-light);
+      color: white;
+      border-color: var(--pool-medium);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    .tabs button.active {
+      background: linear-gradient(135deg, var(--pool-medium), var(--pool-deep));
+      color: white;
+      border-color: var(--pool-deep);
+      box-shadow: 0 4px 16px var(--shadow);
+    }
+
+    /* Form Elements */
+    input[type="email"],
+    input[type="password"],
+    input[type="text"],
+    input[type="number"],
+    input[placeholder],
+    select,
+    textarea {
+      width: 100%;
+      padding: 16px 18px;
+      border: 2px solid var(--pool-foam);
+      border-radius: 12px;
+      font-family: 'Work Sans', sans-serif;
+      font-size: 16px;
+      color: var(--text-dark);
+      background: white;
+      transition: all 0.3s ease;
+      margin-bottom: 14px;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--pool-medium);
+      box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+      background: var(--pool-surface);
+    }
+
+    textarea {
+      min-height: 160px;
+      resize: vertical;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%230369a1' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      padding-right: 44px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text-medium);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Checkbox */
+    input[type="checkbox"] {
+      width: auto;
+      margin-right: 10px;
+      margin-bottom: 0;
+      width: 22px;
+      height: 22px;
+      accent-color: var(--pool-medium);
+      cursor: pointer;
+    }
+
+    label:has(input[type="checkbox"]) {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0;
+      padding: 14px;
+      background: var(--pool-surface);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: none;
+      font-size: 15px;
+    }
+
+    label:has(input[type="checkbox"]):hover {
+      background: var(--pool-foam);
+    }
+
+    /* File Input */
+    input[type="file"] {
+      padding: 12px;
+      background: var(--pool-surface);
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    input[type="file"]::file-selector-button {
+      padding: 10px 18px;
+      border: none;
+      background: var(--pool-medium);
+      color: white;
+      border-radius: 8px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      margin-right: 12px;
+      transition: all 0.3s ease;
+    }
+
+    input[type="file"]::file-selector-button:hover {
+      background: var(--pool-deep);
+      transform: translateY(-1px);
+    }
+
+    /* Buttons */
+    button {
+      width: 100%;
+      padding: 18px 24px;
+      background: linear-gradient(135deg, var(--pool-medium), var(--pool-deep));
+      border: none;
+      border-radius: 12px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 16px var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.5s ease;
+    }
+
+    button:hover::before {
+      left: 100%;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px var(--shadow);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button[type="submit"] {
+      background: linear-gradient(135deg, var(--success), #059669);
+      margin-top: 8px;
+    }
+
+    /* Warning Box */
+    #shock-warning {
+      display: none;
+      margin-top: 12px;
+      padding: 18px;
+      border: 3px solid var(--warning);
+      background: var(--sand);
+      color: #92400e;
+      border-radius: 12px;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 1.7;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+      50% { box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
+    }
+
+    #shock-warning strong {
+      font-weight: 700;
+    }
+
+    /* User List */
+    #user-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    #user-list li {
+      padding: 14px 16px;
+      background: var(--pool-surface);
+      border-radius: 10px;
+      margin-bottom: 8px;
+      border-left: 4px solid var(--pool-medium);
+      transition: all 0.3s ease;
+      font-size: 15px;
+    }
+
+    #user-list li:hover {
+      background: var(--pool-foam);
+      transform: translateX(4px);
+      border-left-color: var(--pool-deep);
+    }
+
+    /* Grid Layout for Smaller Fields */
+    .field-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .field-group-three {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .field-full {
+      margin-bottom: 14px;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      body {
+        padding: 12px;
+      }
+
+      .card {
+        padding: 20px;
+        border-radius: 16px;
+      }
+
+      h2 {
+        font-size: 24px;
+      }
+
+      h3 {
+        font-size: 18px;
+      }
+
+      .tabs button {
+        font-size: 11px;
+        padding: 10px 12px;
+      }
+
+      .field-group,
+      .field-group-three {
+        grid-template-columns: 1fr;
+      }
+
+      input, select, textarea, button {
+        font-size: 16px; /* Prevents zoom on iOS */
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h2>🏊 Admin Dashboard</h2>
+
+      <div class="login-section">
+        <input type="password" id="password" placeholder="Admin password" />
+        <button onclick="login()" style="width: auto; padding: 18px 32px;">Login</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="tabs">
+        <button onclick="switchTab('unassigned')">Unassigned</button>
+        <button onclick="switchTab('monday')">Monday</button>
+        <button onclick="switchTab('tuesday')">Tuesday</button>
+        <button onclick="switchTab('wednesday')">Wednesday</button>
+        <button onclick="switchTab('thursday')">Thursday</button>
+        <button onclick="switchTab('friday')">Friday</button>
+      </div>
+
+      <h3>Users</h3>
+      <ul id="user-list"></ul>
+    </div>
+
+    <div class="card">
+      <h3>📊 Send Pool Report</h3>
+      <form id="report-form">
+        <div class="field-full">
+          <label>Customer Email</label>
+          <input type="email" id="report-email" placeholder="customer@email.com" required />
+        </div>
+
+        <div class="field-group-three">
+          <div>
+            <label>pH</label>
+            <input placeholder="7.4" id="ph" />
+          </div>
+          <div>
+            <label>Chlorine</label>
+            <input placeholder="3.0" id="chlorine" />
+          </div>
+          <div>
+            <label>Alkalinity</label>
+            <input placeholder="120" id="alkalinity" />
+          </div>
+        </div>
+
+        <div class="field-group">
+          <div>
+            <label>Salt (ppm)</label>
+            <input type="number" id="salt" step="1" placeholder="3200" />
+          </div>
+          <div>
+            <label>CYA / Stabilizer (ppm)</label>
+            <input type="number" id="cya" step="1" placeholder="50" />
+          </div>
+        </div>
+
+        <div class="field-full">
+          <label>Calcium Hardness (ppm)</label>
+          <input type="number" id="calcium" step="1" placeholder="250" />
+        </div>
+
+        <div class="field-full">
+          <label>Service Performed</label>
+          <select id="service-type">
+            <option value="">-- Select service (optional) --</option>
+            <option value="Full clean">Full clean (weekly vacuuming / brush + tile)</option>
+            <option value="Bi-weekly clean">Bi-weekly clean (vacuum/weekly brush + tile)</option>
+            <option value="Weekly brush + tile">Weekly brush + tile</option>
+            <option value="Vacuum once a month / weekly brush">Vacuum once a month / weekly brush</option>
+            <option value="Chemicals only">Chemicals only</option>
+          </select>
+        </div>
+
+        <label>
+          <input type="checkbox" id="shock" />
+          Shock Treatment
+        </label>
+
+        <div id="shock-warning">
+          ⚠️ <strong>CAUTION – SHOCK TREATMENT</strong><br><br>
+          🚫 Do not enter the pool for <strong>24–48 hours</strong>.<br>
+          🔄 Keep the pool pump and filter running <strong>24/7</strong> until a pool operator revisits your pool.<br>
+          🏊‍♂️ <strong>Do not swim.</strong>
+        </div>
+
+        <div class="field-full" style="margin-top: 14px;">
+          <label>Comments</label>
+          <textarea id="comments" placeholder="Add any notes about the service, chemical adjustments, or pool condition..."></textarea>
+        </div>
+
+        <div class="field-full">
+          <label>Before Photo (.webp)</label>
+          <input type="file" id="before" accept="image/webp" />
+        </div>
+
+        <div class="field-full">
+          <label>After Photo (.webp)</label>
+          <input type="file" id="after" accept="image/webp" />
+        </div>
+
+        <button type="submit">📧 Send Report</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>

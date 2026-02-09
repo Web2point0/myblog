@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pool Service Newsletter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --pool-deep: #0369a1;
+      --pool-medium: #0ea5e9;
+      --pool-light: #7dd3fc;
+      --pool-foam: #e0f2fe;
+      --pool-surface: #f0f9ff;
+      --coral: #f97316;
+      --success: #10b981;
+      --shadow: rgba(3, 105, 161, 0.2);
+      --text-dark: #0c4a6e;
+      --text-light: rgba(255, 255, 255, 0.95);
+    }
+
+    body {
+      font-family: 'Work Sans', -apple-system, sans-serif;
+      background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 50%, #075985 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Animated Water Background */
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(ellipse at 30% 40%, rgba(125, 211, 252, 0.4) 0%, transparent 60%),
+        radial-gradient(ellipse at 70% 60%, rgba(224, 242, 254, 0.3) 0%, transparent 60%),
+        radial-gradient(circle at 50% 80%, rgba(14, 165, 233, 0.3) 0%, transparent 50%);
+      animation: waterFlow 20s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes waterFlow {
+      0%, 100% {
+        transform: translate(0, 0) scale(1);
+      }
+      33% {
+        transform: translate(-20px, -20px) scale(1.05);
+      }
+      66% {
+        transform: translate(20px, 20px) scale(0.95);
+      }
+    }
+
+    /* Floating Bubbles */
+    body::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        radial-gradient(circle, rgba(255, 255, 255, 0.2) 2px, transparent 2px),
+        radial-gradient(circle, rgba(255, 255, 255, 0.15) 1.5px, transparent 1.5px),
+        radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+      background-size: 150px 150px, 200px 200px, 250px 250px;
+      background-position: 0 0, 50px 50px, 100px 100px;
+      animation: bubbleFloat 30s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes bubbleFloat {
+      from {
+        transform: translateY(0);
+      }
+      to {
+        transform: translateY(-100%);
+      }
+    }
+
+    .container {
+      max-width: 480px;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(20px);
+      border-radius: 28px;
+      padding: 48px 36px;
+      box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.5) inset,
+        0 0 80px rgba(14, 165, 233, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, var(--pool-light), var(--pool-medium), var(--pool-deep), var(--pool-medium), var(--pool-light));
+      background-size: 200% 100%;
+      animation: shimmer 3s linear infinite;
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: -200% 0;
+      }
+      100% {
+        background-position: 200% 0;
+      }
+    }
+
+    .icon {
+      text-align: center;
+      margin-bottom: 24px;
+      font-size: 64px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 900;
+      font-size: 32px;
+      color: var(--pool-deep);
+      margin-bottom: 12px;
+      text-align: center;
+      letter-spacing: -1px;
+      line-height: 1.2;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, var(--pool-deep), var(--pool-medium), var(--pool-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: var(--text-dark);
+      font-size: 16px;
+      margin-bottom: 36px;
+      line-height: 1.6;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    input[type="email"] {
+      width: 100%;
+      padding: 20px 24px;
+      border: 3px solid var(--pool-foam);
+      border-radius: 16px;
+      font-family: 'Work Sans', sans-serif;
+      font-size: 18px;
+      color: var(--text-dark);
+      background: white;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    input[type="email"]:focus {
+      outline: none;
+      border-color: var(--pool-medium);
+      box-shadow: 
+        0 0 0 4px rgba(14, 165, 233, 0.15),
+        0 8px 24px rgba(14, 165, 233, 0.2);
+      background: var(--pool-surface);
+      transform: translateY(-2px);
+    }
+
+    input[type="email"]::placeholder {
+      color: rgba(12, 74, 110, 0.4);
+      font-weight: 400;
+    }
+
+    button[type="submit"] {
+      width: 100%;
+      padding: 22px 32px;
+      background: linear-gradient(135deg, var(--pool-medium) 0%, var(--pool-deep) 100%);
+      border: none;
+      border-radius: 16px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 18px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      box-shadow: 
+        0 8px 24px var(--shadow),
+        0 0 0 0 rgba(14, 165, 233, 0.5);
+      position: relative;
+      overflow: hidden;
+    }
+
+    button[type="submit"]::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    button[type="submit"]:hover::before {
+      width: 400px;
+      height: 400px;
+    }
+
+    button[type="submit"]:hover {
+      transform: translateY(-3px);
+      box-shadow: 
+        0 12px 32px var(--shadow),
+        0 0 0 4px rgba(14, 165, 233, 0.3);
+    }
+
+    button[type="submit"]:active {
+      transform: translateY(-1px);
+    }
+
+    button[type="submit"] span {
+      position: relative;
+      z-index: 1;
+    }
+
+    #status {
+      text-align: center;
+      padding: 18px 24px;
+      border-radius: 14px;
+      font-weight: 600;
+      font-size: 16px;
+      margin-top: 20px;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all 0.4s ease;
+    }
+
+    #status.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    #status.success {
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+      color: #065f46;
+      border: 2px solid var(--success);
+    }
+
+    #status.error {
+      background: linear-gradient(135deg, #fee2e2, #fecaca);
+      color: #991b1b;
+      border: 2px solid #ef4444;
+    }
+
+    .features {
+      margin-top: 32px;
+      padding-top: 28px;
+      border-top: 2px solid var(--pool-foam);
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
+      padding: 14px;
+      background: var(--pool-surface);
+      border-radius: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .feature-item:hover {
+      background: var(--pool-foam);
+      transform: translateX(4px);
+    }
+
+    .feature-icon {
+      font-size: 28px;
+      flex-shrink: 0;
+    }
+
+    .feature-text {
+      color: var(--text-dark);
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 36px 24px;
+        border-radius: 24px;
+      }
+
+      h2 {
+        font-size: 28px;
+      }
+
+      .subtitle {
+        font-size: 15px;
+      }
+
+      input[type="email"],
+      button[type="submit"] {
+        font-size: 16px; /* Prevents zoom on iOS */
+      }
+
+      .icon {
+        font-size: 56px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="icon">🏊‍♂️</div>
+      <h2>Crystal Clear Updates</h2>
+      <p class="subtitle">Get weekly pool service reports delivered to your inbox</p>
+
+      <form id="signup-form">
+        <input type="email" id="email" required placeholder="your@email.com" />
+        <button type="submit"><span>🌊 Sign Up for Updates</span></button>
+      </form>
+
+      <p id="status"></p>
+
+      <div class="features">
+        <div class="feature-item">
+          <div class="feature-icon">📊</div>
+          <div class="feature-text">Detailed water chemistry reports</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">📸</div>
+          <div class="feature-text">Before & after service photos</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🔔</div>
+          <div class="feature-text">Instant notifications</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    // Auto-show status messages when they're updated
+    const status = document.getElementById('status');
+    const observer = new MutationObserver(() => {
+      if (status.textContent.trim()) {
+        status.classList.add('show');
+        
+        // Add success or error class based on message content
+        if (status.textContent.toLowerCase().includes('thanks') || 
+            status.textContent.toLowerCase().includes('success')) {
+          status.classList.add('success');
+          status.classList.remove('error');
+        } else if (status.textContent.toLowerCase().includes('failed') || 
+                   status.textContent.toLowerCase().includes('error')) {
+          status.classList.add('error');
+          status.classList.remove('success');
+        }
+      }
+    });
+    
+    observer.observe(status, { childList: true, characterData: true, subtree: true });
+  </script>
+  
+</body>
+</html>
