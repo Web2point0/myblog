@@ -4,7 +4,7 @@ let currentTextColor = "#ffffff";
 let currentFontFamily = "Arial, sans-serif";
 
 // 🔧 Worker base URL – replace with your own deployed worker URL
- const WORKER_BASE = "https://rs3-banner-worker.clip-devious-turf.workers.dev";
+ const WORKER_BASE = "https://rs3-banner-worker.myyear.net";
 
 const gradients = [
   "linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)",

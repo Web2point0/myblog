@@ -1,7 +1,7 @@
 // ==========================
 // Config
 // ==========================
-const WORKER_URL = "https://rs3-banner-worker.clip-devious-turf.workers.dev"; // replace with your worker URL
+const WORKER_URL = "https://rs3-banner-worker.myyear.net"; // replace with your worker URL
 const GRADIENTS = [
   "linear-gradient(135deg, #1abc9c, #16a085)",
   "linear-gradient(135deg, #3498db, #2980b9)",

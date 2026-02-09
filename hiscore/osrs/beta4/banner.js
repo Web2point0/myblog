@@ -1,6 +1,6 @@
 // banner.js
 async function fetchHiscores(username, game = "rs3") {
-  const url = `https://rs-hiscore-proxy.clip-devious-turf.workers.dev/hiscores?player=${encodeURIComponent(username)}&game=${game}`;
+  const url = `https://rs-hiscore-proxy.myyear.net/hiscores?player=${encodeURIComponent(username)}&game=${game}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error("Failed to fetch hiscores");
   const text = await res.text();

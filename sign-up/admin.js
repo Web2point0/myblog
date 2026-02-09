@@ -1,4 +1,4 @@
-const API_BASE = "https://pool-service-worker.clip-devious-turf.workers.dev";
+const API_BASE = "https://pool.myyear.net";
 
 let adminToken = null;
 let currentTab = "unassigned";

@@ -1,4 +1,4 @@
-const API_BASE = "https://pool-service-worker.clip-devious-turf.workers.dev"
+const API_BASE = "https://pool.myyear.net"
 
 document.getElementById("signup-form").addEventListener("submit", async e => {
   e.preventDefault()

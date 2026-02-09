@@ -4,9 +4,9 @@
 async function fetchHiscores(username, game = "rs3") {
   let proxyURL;
   if (game === "rs3") {
-    proxyURL = `https://rs-hiscore-proxy.clip-devious-turf.workers.dev/hiscores?player=${encodeURIComponent(username)}`;
+    proxyURL = `https://rs-hiscore-proxy.myyear.net/hiscores?player=${encodeURIComponent(username)}`;
   } else {
-    proxyURL = `https://rs-hiscore-proxy.clip-devious-turf.workers.dev/hiscores?player=${encodeURIComponent(username)}`;
+    proxyURL = `https://rs-hiscore-proxy.myyear.net/hiscores?player=${encodeURIComponent(username)}`;
   }
   const response = await fetch(proxyURL);
   if (!response.ok) throw new Error("Failed to fetch stats");

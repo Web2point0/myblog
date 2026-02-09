@@ -5,7 +5,7 @@ const MAX_RAW_BYTES = Math.floor(25 * 1024 * 1024 * 0.75); // ~18.75 MiB limit
 const SITE_BASE = "https://myyear.net/upload/"; 
 
 // 🔹 Change this to your Cloudflare Worker endpoint
-const UPLOAD_URL = "https://file-uploader.clip-devious-turf.workers.dev/upload";  
+const UPLOAD_URL = "https://uploader.myyear.net/upload";  
 
 const fileInput = document.getElementById('fileInput');
 const summary = document.getElementById('summary');

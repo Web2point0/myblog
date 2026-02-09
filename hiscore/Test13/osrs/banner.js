@@ -49,9 +49,9 @@ const skillIcons = {
 async function fetchHiscores(username) {
   let proxyURL;
   if (GAME_MODE === "osrs") {
-    proxyURL = `https://osrs-hiscore-proxy.clip-devious-turf.workers.dev?player=${encodeURIComponent(username)}`;
+    proxyURL = `https://osrs-hiscore-proxy.myyear.net?player=${encodeURIComponent(username)}`;
   } else {
-    proxyURL = `https://osrs-hiscore-proxy.clip-devious-turf.workers.dev?player=${encodeURIComponent(username)}`;
+    proxyURL = `https://osrs-hiscore-proxy.myyear.net?player=${encodeURIComponent(username)}`;
   }
 
   const response = await fetch(proxyURL);
