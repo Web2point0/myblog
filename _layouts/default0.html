@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="stylesheet" href="/style.css">
+<style>
+img,iframe {
+
+}
+h1,h2,h3,p {
+padding-left: 30px;
+padding-right: 20px;
+}
+textarea, span {
+margin-left: 25px;
+}
+.post-list, .post-link, .post-meta {
+
+list-style-type: none;
+
+}
+.post-list-heading {
+
+}
+.container {
+width: 260px;
+border-style: none;
+border-radius: 25px;
+}
+.navbar a { color: #fff; text-decoration: none; }
+.navbar a:visited { color: #fff; }
+.navbar a:hover,a:focus { text-decoration: underline; }
+footer a:visited { color: #fff; }
+footer a { color: #fff; text-decoration: none; }
+</style>
+<script src="/shrink.js"></script>
+</head>
+  <body>
+  
+  <nav class="navbar">
+  <div class="nav-brand"><a href="/">MYYEAR.NET</a></div>
+  <button class="nav-toggle" id="navToggle">
+    ☰
+  </button>
+  <ul class="nav-menu" id="navMenu">
+                        <li><a href="/">Home</a></li>
+			<li><a href="/about/">About</a></li>
+			<li><a href="/links">Links</a></li>
+			<li><a href="/upload/">Uploader</a></li>
+			<li><a href="/PM/">Inbox</a></li>
+  </ul>
+</nav>
+    
+ <div class="invisible">
+ <div class="listleft">
+ <div id="myContainer">
+  <div class="content">
+     {{ content }}
+    </div>
+    </div>
+     </div>
+    
+    
+    <div class="container">
+    <h2>News & Updates</h2>
+
+<div id="news"></div>
+
+<button id="prev">Previous</button>
+<button id="next">Next</button>
+
+<hr>
+
+<h3>Admin</h3>
+<input type="password" id="password" placeholder="Admin Password">
+<br>
+<input type="text" id="subject" placeholder="Subject">
+<br>
+<textarea id="message" placeholder="Message"></textarea>
+<br>
+<button onclick="postNews()">Post</button>
+
+<script src="/script.js"></script>
+    </div>
+    </div>
+    
+    <footer>
+    <p>This page is copyrighted &copy; 2014-<script>document.write(new Date().getFullYear())</script> all rights reserved.</p>
+    <p> Any technical errors, send inquires below: </p>
+  <p><a href="mailto:gloss-sibling-pox@duck.com">gloss-sibling-pox@duck.com</a></p>
+
+
+	 </footer>
+    <script>
+  const navToggle = document.getElementById('navToggle');
+  const navMenu = document.getElementById('navMenu');
+
+  navToggle.addEventListener('click', () => {
+    navMenu.classList.toggle('active');
+  });
+</script>
+  </body>
+</html>
