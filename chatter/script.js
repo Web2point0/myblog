@@ -125,7 +125,7 @@ document.getElementById("registerForm")?.addEventListener("submit", async e => {
     status.textContent = "Account creation was a success!";
     status.style.color = "green";
     setTimeout(() => {
-      window.location.href = "/chitchat/";
+      window.location.href = "/chatter/";
       }, 1200);
 
   } catch (err) {

@@ -218,12 +218,56 @@
         </form>
 
         <p class="footer-text">
-            New here? <a href="/chatter/register.html">Create an account</a>
-            <p>Contact support at handle: <b>myyear</b></p>
+            New here? <a href="/register.html">Create an account</a>
         </p>
 
         <div id="banner"></div>
     </div>
+    
+    <!-- =========================
+     ACCOUNT RESTORE SECTION
+========================= -->
+
+<div id="restoreSection" style="display:none; margin-top:20px;">
+  <h3>Restore Existing Account</h3>
+
+  <input
+    type="text"
+    id="restoreHandle"
+    placeholder="Enter your handle"
+    autocomplete="off"
+  />
+
+  <input
+    type="text"
+    id="restoreViewKey"
+    placeholder="Enter your view key"
+    autocomplete="off"
+  />
+
+  <!-- Optional: include if you're using private keys -->
+  <input
+    type="text"
+    id="restorePrivateKey"
+    placeholder="Enter your private key (if applicable)"
+    autocomplete="off"
+  />
+
+  <button onclick="handleRestore()">
+    Restore Account
+  </button>
+
+  <p style="margin-top:10px;">
+    <a href="#" onclick="showRegister()">Back to Register</a>
+  </p>
+</div>
+
+<!-- Button to open restore -->
+<div id="restoreToggle" style="margin-top:20px;">
+  <button onclick="showRestore()">
+    Restore Existing Account
+  </button>
+</div>
 
     <script src="login.js"></script>
 </body>

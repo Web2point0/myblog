@@ -620,6 +620,7 @@
        font-size: 26px; 
         } 
         .home h4 {     font-family: Cursive; }
+        .logo a:link, a:visited { text-decoration:none; }
     </style>
 </head>
 <body>
@@ -628,14 +629,11 @@
     <!-- Navigation -->
     <nav id="navbar">
         <div class="nav-container">
-            <div class="logo">MYYEAR.NET</div>
+            <div class="logo"><a href="/">MYYEAR.NET</a></div>
             <button class="nav-toggle" id="navToggle">☰</button>
             <ul class="nav-links" id="navMenu">
                 <li><a href="/">Home</a></li>
-                <li><a href="#">About</a></li>
-                <li><a href="#">Links</a></li>
-                <li><a href="#">Uploader</a></li>
-                <li><a href="#">Inbox</a></li>
+                <li><a href="/chatter/">Login</a></li>
             </ul>
         </div>
     </nav>
@@ -782,7 +780,7 @@
     <!-- Footer -->
     <footer>
         <p>&copy; 2014-<script>document.write(new Date().getFullYear())</script> MYYEAR.NET. All rights reserved.</p>
-        <p>For technical inquiries: <a href="#">contact@myyear.net</a></p>
+        <p>For technical inquiries: <a href="mailto:gloss-sibling-pox@duck.com">contact@myyear.net</a></p>
     </footer>
 
     <!-- Audio Player -->
