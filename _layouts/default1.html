@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MYYEAR.NET - Chronicles of the Digital Realm</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Uncial+Antiqua&family=Cinzel+Decorative:wght@400;700&family=MedievalSharp&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --parchment: #e8d5b7;
+    --parchment-dark: #d4c4a8;
+    --ink: #2b1810;
+    --ink-faded: #5c4a3a;
+    --gold: #c9a961;
+    --gold-dark: #8b7355;
+    --red-seal: #8b1a1a;
+    --shadow: rgba(0, 0, 0, 0.3);
+    --nav-bg: #1a1a2e;
+}
+
+body {
+    font-family: 'IM Fell English', serif;
+    background: 
+        radial-gradient(circle at 20% 50%, rgba(139, 115, 85, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 50%, rgba(139, 115, 85, 0.1) 0%, transparent 50%),
+        linear-gradient(135deg, #2d1810 0%, #1a0f0a 100%);
+    min-height: 100vh;
+    color: var(--ink);
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Ambient candlelight effect */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(ellipse at 10% 10%, rgba(255, 147, 41, 0.05) 0%, transparent 40%),
+        radial-gradient(ellipse at 90% 20%, rgba(255, 147, 41, 0.03) 0%, transparent 40%),
+        radial-gradient(ellipse at 50% 80%, rgba(255, 147, 41, 0.04) 0%, transparent 40%);
+    pointer-events: none;
+    animation: flicker 4s ease-in-out infinite;
+    z-index: 0;
+}
+
+@keyframes flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.85; }
+}
+
+/* Navigation */
+.navbar {
+    background: linear-gradient(135deg, var(--nav-bg) 0%, #16213e 100%);
+    padding: 15px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    border-bottom: 3px solid var(--gold-dark);
+}
+
+.nav-brand {
+    font-family: 'Uncial Antiqua', cursive;
+    font-size: 1.8em;
+    color: var(--gold);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    display: inline-block;
+    margin-right: 30px;
+}
+
+.nav-brand a {
+    color: var(--gold);
+    text-decoration: none;
+}
+
+.nav-toggle {
+    display: none;
+    background: var(--gold-dark);
+    border: 2px solid var(--gold);
+    color: var(--parchment);
+    font-size: 1.5em;
+    padding: 5px 15px;
+    cursor: pointer;
+    border-radius: 4px;
+    float: right;
+}
+
+.nav-menu {
+    display: inline-flex;
+    list-style: none;
+    gap: 25px;
+}
+
+.nav-menu li a {
+    color: var(--parchment);
+    text-decoration: none;
+    font-family: 'MedievalSharp', cursive;
+    font-size: 1.1em;
+    transition: all 0.3s ease;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.nav-menu li a:hover {
+    color: var(--gold);
+    text-decoration: underline;
+}
+
+/* Main Container */
+.main-container {
+    max-width: 1600px;
+    margin: 40px auto;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 40px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Main Scroll Container */
+.scroll-container {
+    position: relative;
+    background: 
+        linear-gradient(to right, transparent 0%, var(--parchment-dark) 3%, var(--parchment) 5%, var(--parchment) 95%, var(--parchment-dark) 97%, transparent 100%);
+    padding: 60px 50px;
+    border-radius: 8px;
+    box-shadow: 
+        0 15px 40px rgba(0, 0, 0, 0.6),
+        inset 0 0 100px rgba(139, 115, 85, 0.1);
+    animation: unrollScroll 1.2s ease-out;
+    transform-origin: top center;
+    min-height: 800px;
+}
+
+@keyframes unrollScroll {
+    0% {
+        transform: scaleY(0.1);
+        opacity: 0;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        transform: scaleY(1);
+        opacity: 1;
+    }
+}
+
+/* Scroll rod decorations */
+.scroll-container::before,
+.scroll-container::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 25px;
+    background: 
+        linear-gradient(90deg, 
+            var(--gold-dark) 0%, 
+            var(--gold) 20%, 
+            var(--gold-dark) 40%, 
+            var(--gold) 50%, 
+            var(--gold-dark) 60%, 
+            var(--gold) 80%, 
+            var(--gold-dark) 100%);
+    box-shadow: 
+        0 3px 8px rgba(0, 0, 0, 0.4),
+        inset 0 2px 3px rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+}
+
+.scroll-container::before {
+    top: 15px;
+}
+
+.scroll-container::after {
+    bottom: 15px;
+}
+
+/* Parchment texture */
+.scroll-content {
+    position: relative;
+    background-image: 
+        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(139, 115, 85, 0.03) 2px, rgba(139, 115, 85, 0.03) 4px),
+        repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(139, 115, 85, 0.03) 2px, rgba(139, 115, 85, 0.03) 4px);
+}
+
+.scroll-title {
+    font-family: 'Uncial Antiqua', cursive;
+    font-size: 3em;
+    color: var(--red-seal);
+    text-align: center;
+    margin-bottom: 40px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Boombox Radio */
+.boombox {
+    background: linear-gradient(145deg, #333 0%, #1a1a1a 100%);
+    border: 4px solid var(--gold-dark);
+    border-radius: 12px;
+    padding: 25px;
+    margin: 30px auto;
+    max-width: 400px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+}
+
+.handle {
+    width: 120px;
+    height: 15px;
+    background: var(--gold-dark);
+    margin: 0 auto 15px;
+    border-radius: 10px 10px 0 0;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.brand {
+    text-align: center;
+    font-family: 'Cinzel Decorative', cursive;
+    color: var(--gold);
+    font-size: 1.3em;
+    margin-bottom: 15px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.speakers {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
+.speaker {
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle, #222 0%, #000 70%);
+    border: 3px solid var(--gold-dark);
+    border-radius: 50%;
+    position: relative;
+}
+
+.speaker::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60%;
+    height: 60%;
+    background: radial-gradient(circle, #1a1a1a 0%, #000 100%);
+    border-radius: 50%;
+}
+
+.speaker.playing {
+    animation: pulse 0.8s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.display {
+    background: #1a3a1a;
+    border: 2px solid var(--gold-dark);
+    padding: 10px;
+    text-align: center;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+.display-text {
+    font-family: 'Courier New', monospace;
+    color: #00ff00;
+    font-size: 1.2em;
+    text-shadow: 0 0 5px #00ff00;
+}
+
+.controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.play-button {
+    background: var(--gold-dark);
+    border: 2px solid var(--gold);
+    color: white;
+    font-size: 1.5em;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.play-button:hover {
+    background: var(--gold);
+    transform: scale(1.05);
+}
+
+.volume-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.volume-slider {
+    flex: 1;
+    height: 6px;
+    border-radius: 3px;
+    background: #333;
+    outline: none;
+}
+
+.volume-value {
+    font-family: 'Courier New', monospace;
+    color: var(--gold);
+    min-width: 30px;
+}
+
+/* Posts Section */
+.post-list-heading {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 2em;
+    color: var(--red-seal);
+    margin: 40px 0 25px;
+    padding-left: 0;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    border-bottom: 2px solid var(--gold-dark);
+    padding-bottom: 10px;
+}
+
+.post-list {
+    list-style: none;
+    padding: 0;
+}
+
+.post-list li {
+    margin-bottom: 25px;
+    padding: 20px;
+    background: rgba(212, 196, 168, 0.2);
+    border-left: 4px solid var(--gold-dark);
+    border-radius: 0 6px 6px 0;
+}
+
+.post-meta {
+    font-size: 0.9em;
+    color: var(--ink-faded);
+    font-style: italic;
+    margin-left: 0;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.post-link {
+    font-family: 'Cinzel Decorative', cursive;
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 1.2em;
+    transition: color 0.3s ease;
+}
+
+.post-list h3 {
+    margin: 0;
+    padding-left: 0;
+}
+
+.post-link:hover {
+    color: var(--red-seal);
+}
+
+.rss-subscribe {
+    margin-top: 30px;
+    text-align: center;
+    font-style: italic;
+}
+
+.rss-subscribe a {
+    color: var(--red-seal);
+    text-decoration: none;
+}
+
+/* News Scroll */
+.news-scroll {
+    position: relative;
+    background: 
+        linear-gradient(to bottom, transparent 0%, var(--parchment-dark) 2%, var(--parchment) 4%, var(--parchment) 96%, var(--parchment-dark) 98%, transparent 100%);
+    padding: 50px 30px 50px 30px;
+    border-radius: 8px;
+    box-shadow: 
+        0 15px 40px rgba(0, 0, 0, 0.6),
+        inset 0 0 80px rgba(139, 115, 85, 0.1);
+    animation: unrollScroll 1.2s ease-out 0.3s both;
+    min-height: 400px;
+}
+
+.news-scroll::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 12px;
+    height: 20px;
+    background: 
+        linear-gradient(90deg, 
+            var(--gold-dark) 0%, 
+            var(--gold) 25%, 
+            var(--gold-dark) 50%, 
+            var(--gold) 75%, 
+            var(--gold-dark) 100%);
+    box-shadow: 
+        0 3px 6px rgba(0, 0, 0, 0.4),
+        inset 0 2px 3px rgba(255, 255, 255, 0.3);
+    border-radius: 15px;
+}
+
+.news-scroll-bottom-rod {
+    position: relative;
+    left: 0;
+    right: 0;
+    height: 20px;
+    background: 
+        linear-gradient(90deg, 
+            var(--gold-dark) 0%, 
+            var(--gold) 25%, 
+            var(--gold-dark) 50%, 
+            var(--gold) 75%, 
+            var(--gold-dark) 100%);
+    box-shadow: 
+        0 3px 6px rgba(0, 0, 0, 0.4),
+        inset 0 2px 3px rgba(255, 255, 255, 0.3);
+    border-radius: 15px;
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+
+.news-scroll h2 {
+    font-family: 'Uncial Antiqua', cursive;
+    font-size: 1.8em;
+    color: var(--red-seal);
+    text-align: center;
+    margin-bottom: 30px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    padding: 0;
+}
+
+.news-item,
+.post {
+    margin-bottom: 25px;
+    padding: 20px;
+    background: rgba(212, 196, 168, 0.3);
+    border-left: 4px solid var(--gold-dark);
+    border-radius: 0 4px 4px 0;
+    position: relative;
+}
+
+.news-item::before {
+    content: '⚜';
+    position: absolute;
+    left: -16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.5em;
+    color: var(--gold);
+    background: var(--parchment);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.post h4 {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 1.3em;
+    color: var(--ink);
+    margin-bottom: 12px;
+}
+
+.preview,
+.full {
+    font-size: 0.95em;
+    line-height: 1.6;
+    color: var(--ink);
+}
+
+.full {
+    margin-top: 10px;
+}
+
+.full b {
+    color: var(--red-seal);
+}
+
+#news .post textarea {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--gold-dark);
+    padding: 10px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8em;
+    color: var(--ink);
+    border-radius: 4px;
+    margin: 10px 0;
+}
+
+/* News Navigation Buttons */
+button {
+    background: var(--gold-dark);
+    border: 2px solid var(--gold);
+    color: var(--parchment);
+    padding: 10px 20px;
+    font-family: 'MedievalSharp', cursive;
+    font-size: 1em;
+    cursor: pointer;
+    border-radius: 6px;
+    margin: 5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+button:hover {
+    background: var(--gold);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Admin Section */
+hr {
+    border: none;
+    border-top: 2px solid var(--gold-dark);
+    margin: 30px 0;
+}
+
+.news-scroll h3 {
+    font-family: 'Cinzel Decorative', cursive;
+    color: var(--red-seal);
+    margin: 20px 0 15px;
+    padding: 0;
+}
+
+input[type="text"],
+input[type="password"],
+textarea#message {
+    width: 100%;
+    background: rgba(232, 213, 183, 0.5);
+    border: 2px solid var(--gold-dark);
+    padding: 10px;
+    margin: 8px 0;
+    font-family: 'IM Fell English', serif;
+    color: var(--ink);
+    border-radius: 4px;
+}
+
+textarea#message {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* Footer */
+footer {
+    background: linear-gradient(135deg, var(--nav-bg) 0%, #16213e 100%);
+    color: var(--parchment);
+    text-align: center;
+    padding: 30px 20px;
+    margin-top: 60px;
+    border-top: 3px solid var(--gold-dark);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+}
+
+footer p {
+    margin: 10px 0;
+    padding: 0;
+}
+
+footer a {
+    color: var(--gold);
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+/* iframes */
+iframe {
+    border: 3px solid var(--gold-dark);
+    border-radius: 8px;
+    margin: 20px auto;
+    display: block;
+    background: var(--parchment-dark);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .main-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .news-scroll {
+        position: relative;
+        top: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-toggle {
+        display: block;
+    }
+    
+    .nav-menu {
+        display: none;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        right: 0;
+        background: var(--nav-bg);
+        flex-direction: column;
+        padding: 20px;
+        border-bottom: 3px solid var(--gold-dark);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+    
+    .nav-menu.active {
+        display: flex;
+    }
+    
+    .scroll-container {
+        padding: 50px 25px;
+    }
+    
+    .scroll-title {
+        font-size: 2em;
+    }
+    
+    .boombox {
+        max-width: 100%;
+    }
+}
+
+h1, h2, h3, p {
+    padding-left: 0;
+    padding-right: 0;
+}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-brand"><a href="/">MYYEAR.NET</a></div>
+    <button class="nav-toggle" id="navToggle">☰</button>
+    <ul class="nav-menu" id="navMenu">
+        <li><a href="/">Home</a></li>
+        <li><a href="/about/">About</a></li>
+        <li><a href="/links">Links</a></li>
+        <li><a href="/upload/">Uploader</a></li>
+        <li><a href="/PM/">Inbox</a></li>
+    </ul>
+</nav>
+
+<div class="main-container">
+    <div class="scroll-container">
+        <div class="scroll-content">
+            <h1 class="scroll-title">The Digital Chronicles</h1>
+            
+            <!-- Radio Boombox -->
+            <div class="boombox">
+                <div class="handle"></div>
+                <div class="brand">RADIO</div>
+                
+                <div class="speakers">
+                    <div class="speaker" id="speaker1"></div>
+                    <div class="speaker" id="speaker2"></div>
+                </div>
+                
+                <div class="display">
+                    <div class="display-text" id="display">- - - -</div>
+                </div>
+                
+                <div class="controls">
+                    <button class="play-button play" id="playButton" onclick="togglePlay()">▶</button>
+                    
+                    <div class="volume-control">
+                        <span class="volume-icon">🔊</span>
+                        <input type="range" min="0" max="100" value="70" class="volume-slider" id="volumeSlider" oninput="changeVolume()">
+                        <span class="volume-value" id="volumeValue">70</span>
+                    </div>
+                </div>
+            </div>
+            
+            <p style="text-align: center; margin: 20px 0;">
+                Check out our live radio page: <a href="/radio" style="color: var(--red-seal);">Live Radio</a><br>
+                Mobile devices: <a href="https://2channel.radio12345.com/" style="color: var(--red-seal);">Click here</a>
+            </p>
+            
+            <audio id="audioPlayer"></audio>
+            
+            <script>
+                const audio = document.getElementById('audioPlayer');
+                const playButton = document.getElementById('playButton');
+                const display = document.getElementById('display');
+                const volumeSlider = document.getElementById('volumeSlider');
+                const volumeValue = document.getElementById('volumeValue');
+                const speaker1 = document.getElementById('speaker1');
+                const speaker2 = document.getElementById('speaker2');
+                const streamUrl = 'https://uk22freenew.listen2myradio.com/live.mp3?typeportmount=s1_13339_stream_672269329';
+                
+                let isPlaying = false;
+                
+                audio.volume = 0.7;
+                
+                function togglePlay() {
+                    if (!isPlaying) {
+                        audio.src = streamUrl;
+                        audio.play().then(() => {
+                            isPlaying = true;
+                            playButton.textContent = '⏹';
+                            playButton.className = 'play-button stop';
+                            display.textContent = '♪ LIVE ♪';
+                            speaker1.classList.add('playing');
+                            speaker2.classList.add('playing');
+                        }).catch(error => {
+                            console.error('Playback failed:', error);
+                            alert('Could not play stream. Please try again.');
+                        });
+                    } else {
+                        audio.pause();
+                        audio.src = '';
+                        isPlaying = false;
+                        playButton.textContent = '▶';
+                        playButton.className = 'play-button play';
+                        display.textContent = '- - - -';
+                        speaker1.classList.remove('playing');
+                        speaker2.classList.remove('playing');
+                    }
+                }
+                
+                function changeVolume() {
+                    const volume = volumeSlider.value;
+                    audio.volume = volume / 100;
+                    volumeValue.textContent = volume;
+                }
+            </script>
+            
+            <!-- Banner Links -->
+            <p style="text-align: center; margin: 30px 0;">
+                <a href="/hiscore/osrs/beta1/" style="color: var(--red-seal); text-decoration: none;">Create a RS Banner just like this!</a><br>
+                <a href="/hiscore/rs3/beta1/" style="color: var(--red-seal); text-decoration: none;">RS3 Banner Generator</a>
+            </p>
+            <p style="text-align: center; font-size: 0.9em; color: var(--ink-faded);">
+                These use a community hiscore fetch proxy. Which can be slow at times of peak traffic. Try using our own proxy provided in the <a href="/links/" style="color: var(--red-seal);">links section</a> for rs3/osrs banner generator.
+            </p>
+            
+            <!-- Posts Section -->
+            <div class="content">
+     {{ content }}
+    </div>
+        </div>
+    </div>
+    
+    <!-- News Scroll -->
+    <div class="news-scroll">
+        <h2>News & Updates</h2>
+        
+        <div id="news">
+          
+        </div>
+        
+        <button id="prev">Previous</button>
+        <button id="next">Next</button>
+        
+        <hr>
+        
+        <h3>Admin</h3>
+        <input type="password" id="password" placeholder="Admin Password">
+        <br>
+        <input type="text" id="subject" placeholder="Subject">
+        <br>
+        <textarea id="message" placeholder="Message"></textarea>
+        <br>
+        <button onclick="postNews()">Post</button>
+        <script src="/script.js"></script>
+    </div>
+</div>
+
+<footer>
+    <p>This page is copyrighted © 2014-<script>document.write(new Date().getFullYear())</script> all rights reserved.</p>
+    <p>Any technical errors, send inquires below:</p>
+    <p><a href="mailto:gloss-sibling-pox@duck.com">gloss-sibling-pox@duck.com</a></p>
+</footer>
+
+<script>
+// Navigation toggle
+const navToggle = document.getElementById('navToggle');
+const navMenu = document.getElementById('navMenu');
+
+navToggle.addEventListener('click', () => {
+    navMenu.classList.toggle('active');
+});
+</script>
+
+</body>
+</html>

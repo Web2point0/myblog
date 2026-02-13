@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    header {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      padding: 24px 32px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      animation: slideDown 0.5s ease-out;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    #userHandle {
+      font-size: 24px;
+      color: #1a202c;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    nav {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    nav button {
+      padding: 12px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #4a5568;
+      background: #f7fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    nav button:hover {
+      background: #edf2f7;
+      border-color: #cbd5e0;
+      color: #2d3748;
+    }
+
+    nav button.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-color: transparent;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a202c;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .tab {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      padding: 32px;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .tab.hidden {
+      display: none;
+    }
+
+    #banner {
+      margin-bottom: 24px;
+      padding: 16px;
+      border-radius: 10px;
+      font-size: 15px;
+      text-align: center;
+      display: none;
+    }
+
+    #banner.info {
+      display: block;
+      background: #bee3f8;
+      color: #2c5282;
+      border: 1px solid #90cdf4;
+    }
+
+    #banner.success {
+      display: block;
+      background: #c6f6d5;
+      color: #22543d;
+      border: 1px solid #9ae6b4;
+    }
+
+    #banner.error {
+      display: block;
+      background: #fed7d7;
+      color: #742a2a;
+      border: 1px solid #fc8181;
+    }
+
+    #messageList {
+      margin-bottom: 32px;
+      max-height: 500px;
+      overflow-y: auto;
+      padding-right: 8px;
+    }
+
+    #messageList:empty::before {
+      content: 'No messages yet';
+      display: block;
+      text-align: center;
+      padding: 60px 20px;
+      color: #a0aec0;
+      font-size: 16px;
+    }
+
+    .message {
+      background: #f7fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      transition: all 0.2s ease;
+    }
+
+    .message:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      border-color: #cbd5e0;
+    }
+
+    .message-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .message-from {
+      font-weight: 700;
+      color: #667eea;
+      font-size: 16px;
+    }
+
+    .message-date {
+      font-size: 13px;
+      color: #718096;
+    }
+
+    .message-text {
+      color: #2d3748;
+      line-height: 1.6;
+      font-size: 15px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    #sendForm {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding-top: 24px;
+      border-top: 2px solid #e2e8f0;
+    }
+
+    #sendForm input,
+    #sendForm textarea {
+      width: 100%;
+      padding: 16px;
+      font-size: 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      transition: all 0.2s ease;
+      background: #f7fafc;
+      font-family: inherit;
+    }
+
+    #sendForm input:focus,
+    #sendForm textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    #sendForm input::placeholder,
+    #sendForm textarea::placeholder {
+      color: #a0aec0;
+    }
+
+    #sendForm textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    #sendForm button {
+      padding: 16px;
+      font-size: 17px;
+      font-weight: 600;
+      color: white;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    #sendForm button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    #sendForm button:active {
+      transform: translateY(0);
+    }
+
+    #settings {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    #settings .settings-warning {
+      background: #fef5e7;
+      border: 2px solid #f9e79f;
+      border-radius: 10px;
+      padding: 16px;
+      color: #7d6608;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    #settings button {
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 600;
+      border: 2px solid;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    #settings button:first-of-type {
+      color: #c05621;
+      background: #feebc8;
+      border-color: #fbd38d;
+    }
+
+    #settings button:first-of-type:hover {
+      background: #fbd38d;
+      border-color: #f6ad55;
+    }
+
+    #settings button:last-of-type {
+      color: #9b2c2c;
+      background: #fed7d7;
+      border-color: #fc8181;
+    }
+
+    #settings button:last-of-type:hover {
+      background: #fc8181;
+      color: white;
+    }
+
+    /* Scrollbar styling */
+    #messageList::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    #messageList::-webkit-scrollbar-track {
+      background: #edf2f7;
+      border-radius: 4px;
+    }
+
+    #messageList::-webkit-scrollbar-thumb {
+      background: #cbd5e0;
+      border-radius: 4px;
+    }
+
+    #messageList::-webkit-scrollbar-thumb:hover {
+      background: #a0aec0;
+    }
+
+    /* Responsive design */
+    @media (max-width: 600px) {
+      header {
+        padding: 20px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      #userHandle {
+        font-size: 20px;
+      }
+
+      nav {
+        width: 100%;
+      }
+
+      nav button {
+        flex: 1;
+        padding: 10px 16px;
+        font-size: 14px;
+      }
+
+      .tab {
+        padding: 24px 20px;
+      }
+
+      #sendForm input,
+      #sendForm textarea {
+        padding: 14px;
+        font-size: 15px;
+      }
+
+      #sendForm textarea {
+        min-height: 100px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h2 id="userHandle"></h2>
+    <nav>
+      <button onclick="showTab('messages')" class="active">Messages</button>
+      <button onclick="showTab('settings')">Settings</button>
+    </nav>
+  </header>
+  <main>
+    <div class="tab">
+      <section id="messages">
+        <div id="banner"></div>
+        <div id="messageList"></div>
+        <form id="sendForm">
+          <input id="toHandle" placeholder="Recipient's handle" required>
+          <textarea id="messageText" placeholder="Type your message here..." required></textarea>
+          <button type="submit">Send Message</button>
+        </form>
+      </section>
+      <section id="settings" class="hidden">
+        <h3 class="section-title">Account Settings</h3>
+        <div class="settings-warning">
+          ⚠️ Warning: These actions are permanent and cannot be undone.
+        </div>
+        <button onclick="deleteAllMessages()">Delete All Messages</button>
+        <button onclick="logout()">Log Out</button>
+        <button onclick="deleteAccount()">Delete Account</button>
+      </section>
+    </div>
+  </main>
+  <script src="dashboard.js"></script>
+  <script>
+    // Add active state to nav buttons and toggle sections
+    function showTab(tabName) {
+      document.querySelectorAll('main section').forEach(section => section.classList.add('hidden'));
+      document.getElementById(tabName).classList.remove('hidden');
+      
+      document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+  </script>
+</body>
+</html>
