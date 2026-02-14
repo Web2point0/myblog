@@ -632,8 +632,8 @@
             <div class="logo"><a href="/">MYYEAR.NET</a></div>
             <button class="nav-toggle" id="navToggle">☰</button>
             <ul class="nav-links" id="navMenu">
-                <li><a href="/">Home</a></li>
                 <li><a href="/chatter/">Login</a></li>
+                <li><a href="/chatter/dashboard.html">Dashboard</a></li>
             </ul>
         </div>
     </nav>
@@ -654,7 +654,7 @@
         <section class="section" id="services">
             <div class="section-header">
                 <h2>What We Offer</h2>
-                <p>Comprehensive solutions tailored to your business needs. Whether it's this year or the next, building tommorrow applications, today.</p>
+                <p>Comprehensive solutions tailored to your business needs. Whether it's this year or the next, building tommorrow's applications, today.</p>
             </div>
             <div class="feature-grid">
                 <div class="feature-card">
@@ -757,30 +757,15 @@
             </div>
         </section>
 
-        <!-- Admin Section (hidden unless password entered) -->
-        <section class="section" style="max-width: 600px; margin-left: auto; margin-right: auto;">
-            <div class="interactive-section">
-                <h3 style="margin-bottom: 1.5rem; text-align: center;">Admin Panel</h3>
-                <div style="display: flex; flex-direction: column; gap: 1rem;">
-                    <input type="password" id="password" placeholder="Admin Password" 
-                           style="padding: 0.75rem; background: var(--secondary); border: 1px solid var(--border); 
-                                  border-radius: 6px; color: var(--text); font-size: 1rem;">
-                    <input type="text" id="subject" placeholder="Subject" 
-                           style="padding: 0.75rem; background: var(--secondary); border: 1px solid var(--border); 
-                                  border-radius: 6px; color: var(--text); font-size: 1rem;">
-                    <textarea id="message" placeholder="Message" rows="4"
-                              style="padding: 0.75rem; background: var(--secondary); border: 1px solid var(--border); 
-                                     border-radius: 6px; color: var(--text); font-size: 1rem; resize: vertical;"></textarea>
-                    <button onclick="postNews()" class="btn btn-primary" style="width: 100%;">Post</button>
-                </div>
-            </div>
-        </section>
+        
     </div>
 
     <!-- Footer -->
     <footer>
         <p>&copy; 2014-<script>document.write(new Date().getFullYear())</script> MYYEAR.NET. All rights reserved.</p>
         <p>For technical inquiries: <a href="mailto:gloss-sibling-pox@duck.com">contact@myyear.net</a></p>
+        <p>or Public handle: <b>myyear</b></p>
+        <p><a href="/links/">Projects</a></p>
     </footer>
 
     <!-- Audio Player -->

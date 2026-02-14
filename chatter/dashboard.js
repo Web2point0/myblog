@@ -2,7 +2,7 @@
    CONFIG
 ========================= */
 
-const WORKER_URL = "https://secure-messenger-worker.clip-devious-turf.workers.dev";
+const WORKER_URL = "https://message.myyear.net";
 const POLL_INTERVAL = 5000;
 
 

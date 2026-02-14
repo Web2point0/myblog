@@ -5,7 +5,7 @@
 const WORKER_URL =
   location.hostname === "localhost" || location.hostname === "127.0.0.1"
     ? "http://127.0.0.1:8787"
-    : "https://secure-messenger-worker.clip-devious-turf.workers.dev";
+    : "https://message.myyear.net";
 
 /* =========================
    CRYPTO HELPERS
