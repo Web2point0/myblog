@@ -1,17 +1,16 @@
 ---
 layout: page
-title: Comments
-permalink: /comment/
+title: Feedback
+permalink: /feedback/
 ---
-
 
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Comment System (workers.dev API)</title>
-<style>
-  body { font-family: Arial; margin: 20px; background: #f8f9fa; color: #222; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback</title>
+    <style>
+  #box { font-family: Arial; margin: 20px; color: #222; }
   .comment, .reply {
     background: #fff; border: 1px solid #ccc; border-radius: 8px;
     padding: 10px; margin-bottom: 10px; transition: opacity 0.4s, transform 0.4s;
@@ -22,13 +21,13 @@ permalink: /comment/
   .replyForm { margin-left: 20px; margin-top: 5px; }
   input, textarea { padding: 6px; margin: 4px 0; width: 100%; }
   button { padding: 6px 12px; margin-top: 4px; cursor: pointer; }
-  #setWidth { width: 249px; padding-left: 24px;}
+  
 </style>
 </head>
-<body>
 
-<div id="setWidth">
-<h2>💬 Comments</h2>
+
+<body>
+<div id="box">
 
 <form id="commentForm">
   <input id="nameInput" placeholder="Your name" required />
@@ -207,3 +206,4 @@ fetchComments();
 </div>
 </body>
 </html>
+
