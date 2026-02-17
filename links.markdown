@@ -132,12 +132,6 @@ permalink: /links/
             <a href="https://ifastnet.com/" class="btn">iFastNet</a>
         </div>
 
-        <h2>Github</h2>
-        <div class="button-grid">
-            <a href="https://github.com/Web2point0" class="btn">My GitHub Profile</a>
-            <a href="https://web2point0.github.io/" class="btn">Web2point0.github.io</a>
-        </div>
-
         <h2>RS3/OSRS Banner Generator</h2>
         <div class="button-grid">
             <a href="/hiscore/osrs/alpha/squid/" class="btn btn-alt">OSRS Icons Banner</a>
