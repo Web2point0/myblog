@@ -2,7 +2,7 @@
    CONFIG
 ========================= */
 
-const WORKER_URL = "https://secure-messenger-worker.clip-devious-turf.workers.dev";
+const WORKER_URL = "https://message.myyear.net";
 
 function api(path) {
   return `${WORKER_URL}${path}`;
@@ -124,7 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Redirect to dashboard
       setTimeout(() => {
-        window.location.href = "/chitchat/dashboard.html";
+        window.location.href = "/chatter/dashboard.html";
       }, 500);
 
     } catch (err) {
@@ -133,55 +133,3 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
-
-/* =========================
-   ACCOUNT RECOVERY
-========================= */
-
-function showRestore() {
-  document.getElementById("restoreSection").style.display = "block";
-  document.getElementById("restoreToggle").style.display = "none";
-}
-
-function showRegister() {
-  document.getElementById("restoreSection").style.display = "none";
-  document.getElementById("restoreToggle").style.display = "block";
-}
-
-async function handleRestore() {
-  const handle = document.getElementById("restoreHandle").value.trim();
-  const viewKey = document.getElementById("restoreViewKey").value.trim();
-  const privateKey = document.getElementById("restorePrivateKey").value.trim();
-
-  if (!handle || !viewKey) {
-    alert("Handle and View Key are required.");
-    return;
-  }
-
-  try {
-    const res = await fetch(api("/validate-account"), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ handle, viewKey })
-    });
-
-    if (!res.ok) {
-      alert("Invalid handle or view key.");
-      return;
-    }
-
-    // Save back into localStorage
-    localStorage.setItem("account", JSON.stringify({
-      handle,
-      viewKey,
-      privateKey   // will just store empty string if unused
-    }));
-
-    window.location.href = "/chitchat/dashboard.html";
-
-  } catch (err) {
-    alert("Account restore failed.");
-    console.error(err);
-  }
-}
-
