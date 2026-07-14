@@ -164,6 +164,11 @@ permalink: /links/
         <div class="button-grid">
             <a href="/playlist" class="btn">My Personal Music Playlist</a>
         </div>
+        
+        <h2>Video Uploads</h2>
+        <div class="button-grid">
+            <a href="/vid/home" class="btn">Video Hosting Platform</a>
+        </div>
 
         <h2>Meet New People</h2>
         <div class="button-grid">
