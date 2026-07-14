@@ -1,13 +1,6 @@
 const API =
     "https://video-worker.clip-devious-turf.workers.dev";
 
-
-/*
-============================================================
-Page elements
-============================================================
-*/
-
 const statusMessage =
     document.getElementById("statusMessage");
 
@@ -26,200 +19,42 @@ const nextButton =
 const pageIndicator =
     document.getElementById("pageIndicator");
 
-const searchForm =
-    document.getElementById("searchForm");
-
-const searchInput =
-    document.getElementById("searchInput");
-
-const searchButton =
-    document.getElementById("searchButton");
-
-const clearSearchButton =
-    document.getElementById("clearSearchButton");
-
-const pageTitle =
-    document.getElementById("pageTitle");
-
-const pageSubtitle =
-    document.getElementById("pageSubtitle");
-
-
-/*
-============================================================
-Current page state
-============================================================
-*/
-
-let currentPage = 1;
-let currentQuery = "";
-
-
-/*
-============================================================
-Initialization
-============================================================
-*/
+let currentPage =
+    readPageFromUrl();
 
 document.addEventListener(
     "DOMContentLoaded",
-    initializeHomepage
+    () => loadPopularVideos(currentPage)
 );
 
-
-function initializeHomepage() {
-    const state =
-        readStateFromUrl();
-
-    currentPage =
-        state.page;
-
-    currentQuery =
-        state.query;
-
-    if (searchInput) {
-        searchInput.value =
-            currentQuery;
-    }
-
-    updateSearchInterface();
-
-    loadVideos(
-        currentPage,
-        currentQuery,
-        false
-    );
-}
-
-
-/*
-============================================================
-Search events
-============================================================
-*/
-
-searchForm?.addEventListener(
-    "submit",
-    event => {
-        event.preventDefault();
-
-        const query =
-            normalizeSearchQuery(
-                searchInput?.value || ""
+previousButton.addEventListener(
+    "click",
+    () => {
+        if (currentPage > 1) {
+            loadPopularVideos(
+                currentPage - 1
             );
-
-        if (query.length < 2) {
-            showError(
-                "Search must contain at least 2 characters."
-            );
-
-            searchInput?.focus();
-
-            return;
         }
-
-        currentQuery =
-            query;
-
-        currentPage = 1;
-
-        if (searchInput) {
-            searchInput.value =
-                currentQuery;
-        }
-
-        updateSearchInterface();
-
-        loadVideos(
-            currentPage,
-            currentQuery
-        );
     }
 );
 
-
-clearSearchButton?.addEventListener(
+nextButton.addEventListener(
     "click",
     () => {
-        currentQuery = "";
-        currentPage = 1;
-
-        if (searchInput) {
-            searchInput.value = "";
-        }
-
-        updateSearchInterface();
-
-        loadVideos(
-            currentPage,
-            currentQuery
-        );
-
-        searchInput?.focus();
-    }
-);
-
-
-/*
-============================================================
-Pagination events
-============================================================
-*/
-
-previousButton?.addEventListener(
-    "click",
-    () => {
-        if (currentPage <= 1) {
-            return;
-        }
-
-        loadVideos(
-            currentPage - 1,
-            currentQuery
+        loadPopularVideos(
+            currentPage + 1
         );
     }
 );
-
-
-nextButton?.addEventListener(
-    "click",
-    () => {
-        loadVideos(
-            currentPage + 1,
-            currentQuery
-        );
-    }
-);
-
-
-/*
-============================================================
-Browser Back and Forward buttons
-============================================================
-*/
 
 window.addEventListener(
     "popstate",
     () => {
-        const state =
-            readStateFromUrl();
-
         currentPage =
-            state.page;
+            readPageFromUrl();
 
-        currentQuery =
-            state.query;
-
-        if (searchInput) {
-            searchInput.value =
-                currentQuery;
-        }
-
-        updateSearchInterface();
-
-        loadVideos(
+        loadPopularVideos(
             currentPage,
-            currentQuery,
             false
         );
     }
@@ -228,33 +63,20 @@ window.addEventListener(
 
 /*
 ============================================================
-Load popular or searched videos
+Load popular videos
 ============================================================
 */
 
-async function loadVideos(
+async function loadPopularVideos(
     page,
-    query = "",
     updateHistory = true
 ) {
-    showLoading(query);
-
-    const normalizedQuery =
-        normalizeSearchQuery(query);
-
-    const searching =
-        normalizedQuery.length >= 2;
-
-    const endpoint =
-        searching
-            ? `${API}/search?q=${encodeURIComponent(normalizedQuery)}` +
-              `&page=${encodeURIComponent(page)}`
-            : `${API}/popular?page=${encodeURIComponent(page)}`;
+    showLoading();
 
     try {
         const response =
             await fetch(
-                endpoint,
+                `${API}/popular?page=${encodeURIComponent(page)}`,
                 {
                     method: "GET",
 
@@ -275,7 +97,7 @@ async function loadVideos(
                 JSON.parse(text);
         } catch {
             throw new Error(
-                "The video API returned invalid JSON."
+                "The popular-video API returned invalid JSON."
             );
         }
 
@@ -285,26 +107,18 @@ async function loadVideos(
         ) {
             throw new Error(
                 result.error ||
-                `Request failed with HTTP ${response.status}.`
+                `Popular videos failed with HTTP ${response.status}.`
             );
         }
 
         currentPage =
             Number(result.page || 1);
 
-        currentQuery =
-            searching
-                ? normalizedQuery
-                : "";
-
         if (updateHistory) {
             updatePageUrl(
-                currentPage,
-                currentQuery
+                currentPage
             );
         }
-
-        updateSearchInterface();
 
         renderVideos(
             result.videos || []
@@ -315,12 +129,10 @@ async function loadVideos(
         );
     } catch (error) {
         console.error(
-            "Unable to load videos:",
+            "Unable to load popular videos:",
             error
         );
-      if (searchButton) {
-    searchButton.disabled = false;
-    }
+
         showError(
             error instanceof Error
                 ? error.message
@@ -332,38 +144,7 @@ async function loadVideos(
 
 /*
 ============================================================
-Render search and popular headings
-============================================================
-*/
-
-function updateSearchInterface() {
-    const searching =
-        currentQuery.length >= 2;
-
-    if (clearSearchButton) {
-        clearSearchButton.hidden =
-            !searching;
-    }
-
-    if (pageTitle) {
-        pageTitle.textContent =
-            searching
-                ? "Search Results"
-                : "Most Viewed";
-    }
-
-    if (pageSubtitle) {
-        pageSubtitle.textContent =
-            searching
-                ? `Showing title matches for “${currentQuery}”.`
-                : "Videos with at least 15 views, ranked from most viewed to least viewed.";
-    }
-}
-
-
-/*
-============================================================
-Render video results
+Render video cards
 ============================================================
 */
 
@@ -373,16 +154,10 @@ function renderVideos(videos) {
     if (videos.length === 0) {
         statusMessage.hidden = false;
 
-        if (currentQuery) {
-            statusMessage.textContent =
-                `No active videos matched “${currentQuery}”.`;
-        } else if (currentPage === 1) {
-            statusMessage.textContent =
-                "No videos have reached 15 views yet.";
-        } else {
-            statusMessage.textContent =
-                "There are no videos on this page.";
-        }
+        statusMessage.textContent =
+            currentPage === 1
+                ? "No videos have reached 15 views yet."
+                : "There are no videos on this page.";
 
         videoGrid.hidden = true;
 
@@ -557,7 +332,8 @@ function createThumbnailPlaceholder(title) {
         "thumbnail-placeholder";
 
     placeholder.textContent =
-        title || "Video";
+        title ||
+        "Video";
 
     return placeholder;
 }
@@ -593,13 +369,7 @@ function renderPagination(result) {
 }
 
 
-/*
-============================================================
-URL state
-============================================================
-*/
-
-function readStateFromUrl() {
+function readPageFromUrl() {
     const parameters =
         new URLSearchParams(
             window.location.search
@@ -611,57 +381,33 @@ function readStateFromUrl() {
             10
         );
 
-    const page =
+    return (
         Number.isInteger(requestedPage) &&
         requestedPage > 0
-            ? requestedPage
-            : 1;
-
-    const query =
-        normalizeSearchQuery(
-            parameters.get("q") || ""
-        );
-
-    return {
-        page,
-        query
-    };
+    )
+        ? requestedPage
+        : 1;
 }
 
 
-function updatePageUrl(
-    page,
-    query
-) {
+function updatePageUrl(page) {
     const url =
         new URL(window.location.href);
 
-    if (query) {
-        url.searchParams.set(
-            "q",
-            query
+    if (page <= 1) {
+        url.searchParams.delete(
+            "page"
         );
     } else {
-        url.searchParams.delete(
-            "q"
-        );
-    }
-
-    if (page > 1) {
         url.searchParams.set(
             "page",
             String(page)
-        );
-    } else {
-        url.searchParams.delete(
-            "page"
         );
     }
 
     window.history.pushState(
         {
-            page,
-            query
+            page
         },
         "",
         url
@@ -669,17 +415,9 @@ function updatePageUrl(
 }
 
 
-function normalizeSearchQuery(value) {
-    return String(value)
-        .trim()
-        .replace(/\s+/g, " ")
-        .slice(0, 40);
-}
-
-
 /*
 ============================================================
-Formatting helpers
+Formatting
 ============================================================
 */
 
@@ -761,24 +499,18 @@ function formatDuration(totalSeconds) {
 
 /*
 ============================================================
-Status helpers
+Status messages
 ============================================================
 */
 
-function showLoading(query) {
+function showLoading() {
     statusMessage.hidden = false;
 
     statusMessage.textContent =
-        query
-            ? `Searching for “${query}”...`
-            : "Loading popular videos...";
+        "Loading popular videos...";
 
     videoGrid.hidden = true;
     pagination.hidden = true;
-
-    if (searchButton) {
-        searchButton.disabled = true;
-    }
 }
 
 
@@ -786,12 +518,8 @@ function showError(message) {
     statusMessage.hidden = false;
 
     statusMessage.textContent =
-        `Unable to load videos: ${message}`;
+        `Unable to load popular videos: ${message}`;
 
     videoGrid.hidden = true;
     pagination.hidden = true;
-
-    if (searchButton) {
-        searchButton.disabled = false;
-    }
 }
