@@ -1,5 +1,5 @@
 const API =
-    "https://video-worker.clip-devious-turf.workers.dev";
+    "https://video.myyear.net";
 
 
 /*

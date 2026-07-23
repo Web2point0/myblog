@@ -1,4 +1,4 @@
-const API = "https://video.myyear.net";
+const API = "https://video-worker.clip-devious-turf.workers.dev";
 
 const fileInput = document.getElementById("videoFile");
 const titleInput = document.getElementById("title");
@@ -399,42 +399,18 @@ async function fetchJson(
 }
 
 function getMimeType(file) {
-    const supportedMimeTypes = new Set([
-        "video/mp4",
-        "video/webm",
-        "video/ogg",
-        "video/quicktime",
-        "application/ogg"
-    ]);
-
-    if (supportedMimeTypes.has(file.type)) {
-        return file.type === "application/ogg"
-            ? "video/ogg"
-            : file.type;
+    if (file.type === "video/webm" || file.type === "video/mp4") {
+        return file.type;
     }
 
     const name = file.name.toLowerCase();
-
-    if (
-        name.endsWith(".mp4") ||
-        name.endsWith(".m4v")
-    ) {
-        return "video/mp4";
-    }
 
     if (name.endsWith(".webm")) {
         return "video/webm";
     }
 
-    if (
-        name.endsWith(".ogv") ||
-        name.endsWith(".ogg")
-    ) {
-        return "video/ogg";
-    }
-
-    if (name.endsWith(".mov")) {
-        return "video/quicktime";
+    if (name.endsWith(".mp4")) {
+        return "video/mp4";
     }
 
     return "";
