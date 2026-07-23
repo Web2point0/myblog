@@ -1,4 +1,4 @@
-const API = "https://video-worker.clip-devious-turf.workers.dev";
+const API = "https://cloudflareworkers.workers.dev";
 
 const fileInput = document.getElementById("videoFile");
 const titleInput = document.getElementById("title");

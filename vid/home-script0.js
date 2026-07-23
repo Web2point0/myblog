@@ -1,5 +1,5 @@
 const API =
-    "https://video-worker.clip-devious-turf.workers.dev";
+    "https://cloudflareworkers.workers.dev";
 
 const statusMessage =
     document.getElementById("statusMessage");
